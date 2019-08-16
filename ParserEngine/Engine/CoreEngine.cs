@@ -1,6 +1,7 @@
 ﻿using AngleSharp;
 using AngleSharp.Dom;
 using ParserEngine.Models;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,7 +11,6 @@ namespace ParserEngine.Engine
     public class CoreEngine
     {
         private readonly IBrowsingContext Context;
-
         public CoreEngine()
         {
             var config = Configuration.Default.WithDefaultLoader();
@@ -28,7 +28,7 @@ namespace ParserEngine.Engine
             }
         }
 
-        private async Task<Chapter>GetChapter(Book book, string url)
+        private async Task<Chapter> GetChapter(Book book, string url)
         {
             using (var document = await Context.OpenAsync(url))
             {
@@ -42,7 +42,10 @@ namespace ParserEngine.Engine
                     FileName = Path.Combine(book.FilePath, chapterName),
                     NextUrl = nextUrl
                 };
-                File.WriteAllText(chapter.FileName, content);
+                var fileContent = FileConstants.CustomContent
+                                               .Replace("{CustomTitle}", book.Author)
+                                               .Replace("{CustomContent}", content);
+                File.WriteAllText(chapter.FileName, fileContent);
                 return chapter;
             }
         }
@@ -63,5 +66,6 @@ namespace ParserEngine.Engine
             }
             return null;
         }
+
     }
 }

@@ -3,17 +3,17 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
  <head>
   <title>
-  {customTitle}
+  {CustomTitle}
   </title>
  </head>
  <body>
   <h1>
-  {customTitle}
+  {CustomTitle}
   </h1>
   <br/>
   <br/>
   <div>
-  {customContent}
+  {CustomContent}
   </div>
  </body>
 </html>
