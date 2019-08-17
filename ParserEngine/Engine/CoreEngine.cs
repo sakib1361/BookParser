@@ -32,10 +32,17 @@ namespace ParserEngine.Engine
         {
             using (var document = await Context.OpenAsync(url))
             {
+                if(document == null)
+                {
+                    LogEngine.Error("Failed to Parse Information");
+                    return null;
+                }
+                var info = string.Format("{0}.{1}", book.Chapters.Count + 1, url);
+                LogEngine.Data(info);
                 var title = GetData(document, book.TitleInfo.ParseValue, book.TitleInfo.ParserType);
                 var content = GetData(document, book.ContentInfo.ParseValue, book.ContentInfo.ParserType);
-                var nextUrl = GetData(document, book.ContentInfo.ParseValue, book.ContentInfo.ParserType);
-                var chapterName = string.Format("{000:0}.xhtml", book.Chapters.Count + 1);
+                var nextUrl = GetUrl(document, book.NextChapterInfo.ParseValue, book.NextChapterInfo.ParserType);
+                var chapterName = string.Format("index_split_{0:D3}.html", book.Chapters.Count + 1);
                 var chapter = new Chapter()
                 {
                     Name = title,
@@ -43,29 +50,45 @@ namespace ParserEngine.Engine
                     NextUrl = nextUrl
                 };
                 var fileContent = FileConstants.CustomContent
-                                               .Replace("{CustomTitle}", book.Author)
-                                               .Replace("{CustomContent}", content);
-                File.WriteAllText(chapter.FileName, fileContent);
+                                               .Replace(FileConstants.TitleReplace, chapter.Name)
+                                               .Replace(FileConstants.ContentReplace, content);
+                await FileEngine.WriteTextAsync(chapter.FileName, fileContent);
                 return chapter;
             }
         }
 
+        private string GetUrl(IDocument document, string parser, ParserType parserType)
+        {
+            var element = GetElement(document, parser, parserType);
+            if (element !=null && element.IsLink()) return element.GetAttribute("href");
+            else return null;
+        }
+
         private string GetData(IDocument document, string parser, ParserType parserType)
         {
-            if (parserType == ParserType.Class)
+            var element = GetElement(document, parser, parserType);
+            return element == null ? null : element.InnerHtml.Trim();
+        }
+
+        private IElement GetElement(IDocument document, string parser, ParserType parserType)
+        {
+            switch(parserType)
             {
-                var data = document
-                          .All
-                          .FirstOrDefault(m => m.ClassList.Contains(parser));
-                if (data != null) return data.InnerHtml;
-            }
-            else
-            {
-                var data = document.All.FirstOrDefault(x => x.Id == parser);
-                if (data != null) return data.InnerHtml;
+                case ParserType.Class:
+                    var cData = document
+                         .All
+                         .FirstOrDefault(m => m.ClassList.Contains(parser));
+                    return cData;
+                case ParserType.Id:
+                    var iData = document.All.FirstOrDefault(x => x.Id == parser);
+                    return iData;
+                case ParserType.Rel:
+                    var rData = document.All
+                                        .Where(x => x.HasAttribute("rel") && x.GetAttribute("rel") == parser)
+                                        .FirstOrDefault();
+                    return rData;
             }
             return null;
         }
-
     }
 }

@@ -27,12 +27,22 @@ namespace ParserEngine.Models
     {
         public string ParseValue { get; set; }
         public ParserType ParserType { get; set; }
+        public ParseInfo()
+        {
+
+        }
+        public ParseInfo(ParserType parserType, string value)
+        {
+            ParserType = parserType;
+            ParseValue = value;
+        }
     }
 
     public enum ParserType
     {
         Id,
-        Class
+        Class,
+        Rel
     }
 
     public class Chapter
