@@ -1,5 +1,6 @@
 ﻿using AngleSharp;
 using AngleSharp.Dom;
+using AngleSharp.Xhtml;
 using ParserEngine.Models;
 using System;
 using System.IO;
@@ -16,9 +17,10 @@ namespace ParserEngine.Engine
             var config = Configuration.Default.WithDefaultLoader();
             Context = BrowsingContext.New(config);
         }
-        public async Task Parse(Book book)
+        public async Task<bool> Parse(Book book)
         {
             var chapter = await GetChapter(book, book.Url);
+            if (chapter == null) return false;
             book.Chapters.Add(chapter);
             while (!string.IsNullOrWhiteSpace(chapter.NextUrl))
             {
@@ -26,6 +28,7 @@ namespace ParserEngine.Engine
                 if (chapter == null) break;
                 else book.Chapters.Add(chapter);
             }
+            return true;
         }
 
         private async Task<Chapter> GetChapter(Book book, string url)
@@ -42,7 +45,7 @@ namespace ParserEngine.Engine
                 var title = GetData(document, book.TitleInfo.ParseValue, book.TitleInfo.ParserType);
                 var content = GetData(document, book.ContentInfo.ParseValue, book.ContentInfo.ParserType);
                 var nextUrl = GetUrl(document, book.NextChapterInfo.ParseValue, book.NextChapterInfo.ParserType);
-                var chapterName = string.Format("index_split_{0:D3}.html", book.Chapters.Count + 1);
+                var chapterName = string.Format("index_split_{0:D3}.xhtml", book.Chapters.Count + 1);
                 var chapter = new Chapter()
                 {
                     Name = title,
@@ -67,7 +70,7 @@ namespace ParserEngine.Engine
         private string GetData(IDocument document, string parser, ParserType parserType)
         {
             var element = GetElement(document, parser, parserType);
-            return element == null ? null : element.InnerHtml.Trim();
+            return element?.ToHtml(XhtmlMarkupFormatter.Instance).Trim();
         }
 
         private IElement GetElement(IDocument document, string parser, ParserType parserType)

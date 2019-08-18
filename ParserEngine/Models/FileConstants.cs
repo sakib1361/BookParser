@@ -6,11 +6,17 @@ namespace ParserEngine.Models
 {
     class FileConstants
     {
+
         internal const string TitleReplace = "{CustomTitle}";
         internal const string ContentReplace = "{CustomContent}";
         internal const string AuthorReplace = "{CustomAuthor}";
         internal const string UUIDReplace = "{CustomUUID}";
         internal const string ReferenceReplace = "{CustomRef}";
+        internal const string IDReplace = "{Id}";
+
+        internal const string OpfManifest = @"<item href=""{CustomContent}"" id=""{Id}"" media-type=""application/xhtml+xml""/>";
+        internal const string OpfRef = @"<itemref idref=""{Id}""/>";
+
         internal const string CustomContent = @"
 <?xml version=""1.0"" encoding=""utf-8""?>
 <!DOCTYPE html>
@@ -31,32 +37,32 @@ namespace ParserEngine.Models
   </div>
  </body>
 </html>";
-        internal const string OpfContent = @"<?xml version='1.0' encoding='utf-8'?>
-<package xmlns=""http://www.idpf.org/2007/opf"" version=""2.0"" unique-identifier=""uuid_id"">
-  <metadata xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
-			xmlns:opf=""http://www.idpf.org/2007/opf"" 
-			xmlns:dcterms=""http://purl.org/dc/terms/""
-			xmlns:calibre=""http://calibre.kovidgoyal.net/2009/metadata"" 
-			xmlns:dc=""http://purl.org/dc/elements/1.1/"">
-    <dc:language>en</dc:language>
-    <dc:creator opf:file-as=""{CustomAuthor}"" opf:role=""aut"">{CustomAuthor}</dc:creator>
-    <meta name = ""calibre:timestamp"" content=""2012-11-28T19:43:58.426478+00:00""/>
+        internal const string OpfContent = @"
+<?xml version=""1.0""  encoding=""UTF-8""?>
+<package xmlns=""http://www.idpf.org/2007/opf"" unique-identifier=""uuid_id"" version=""2.0"">
+  <metadata xmlns:calibre=""http://calibre.kovidgoyal.net/2009/metadata"" 
+            xmlns:dc=""http://purl.org/dc/elements/1.1/"" 
+            xmlns:dcterms=""http://purl.org/dc/terms/"" 
+            xmlns:opf=""http://www.idpf.org/2007/opf"" 
+            xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"">
     <dc:title>{CustomTitle}</dc:title>
-    <meta name = ""cover"" content=""cover""/>
-    <dc:contributor opf:role=""bkp"">calibre(0.8.38) [http://calibre-ebook.com]</dc:contributor>
-    <dc:identifier id=""uuid_id"" opf:scheme=""{CustomUUID}</dc:identifier>
-    <dc:subject>antique</dc:subject>
+    <dc:creator opf:role=""aut"" opf:file-as=""Author"">{CustomAuthor}</dc:creator>
+    <dc:contributor opf:role=""bkp""> calibre(3.46.0)[https://calibre-ebook.com]</dc:contributor>
+    <dc:identifier id=""uuid_id"" opf:scheme=""uuid"">{CustomUUID}</dc:identifier>
+    <dc:identifier opf:scheme=""calibre"">{CustomUUID}</dc:identifier>
+    <meta name=""cover"" content=""cover""/>
+    <meta name=""calibre:timestamp"" content =""2019-08-15T16:58:42.414000+00:00"" />
+    <meta name=""calibre:title_sort"" content =""{CustomTitle}"" />
+    <meta name=""calibre:author_link_map"" content=""{{CustomAuthor}}"" />
   </metadata>
   <manifest>
     <item href=""cover.jpg"" id=""cover"" media-type=""image/jpeg""/>
-    <item href=""index_split_000.xhtml"" id=""id54"" media-type=""application/xhtml+xml""/>
     {CustomContent}
     <item href=""titlepage.xhtml"" id=""titlepage"" media-type=""application/xhtml+xml""/>
     <item href=""toc.ncx"" media-type=""application/x-dtbncx+xml"" id=""ncx""/>
   </manifest>
   <spine toc=""ncx"">
     <itemref idref=""titlepage""/>
-    <itemref idref=""id54""/>
     {CustomRef}
   </spine>
   <guide>
@@ -109,5 +115,13 @@ namespace ParserEngine.Models
   </navMap>
 </ncx>
 ";
+
+        internal const string Container = @"
+<?xml version=""1.0""?>
+<container xmlns = ""urn:oasis:names:tc:opendocument:xmlns:container"" version=""1.0"">
+<rootfiles>
+<rootfile media-type=""application/oebps-package+xml"" full-path=""content.opf""/>
+</rootfiles>
+</container>";
     }
 }
