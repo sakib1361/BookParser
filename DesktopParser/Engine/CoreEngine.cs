@@ -1,9 +1,7 @@
 ﻿using AngleSharp;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
-using AngleSharp.Xhtml;
 using ParserEngine.Models;
-using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,12 +14,14 @@ namespace ParserEngine.Engine
         public CoreEngine()
         {
            var config = Configuration.Default
-                        .WithDefaultLoader()
-                        .WithJavaScript();
+                                     .WithDefaultLoader()
+                                     .WithCss()
+                                     .WithJs();
             Context = BrowsingContext.New(config);
         }
         public async Task<bool> Parse(Book book)
         {
+            await Task.Delay(2000);
             using (var document = await Context.OpenAsync(book.Url))
             {
                 var chapter = await GetChapter(book, document);
@@ -81,7 +81,7 @@ namespace ParserEngine.Engine
         private string GetData(IDocument document, string parser, ParserType parserType)
         {
             var element = GetElement(document, parser, parserType);
-            return element?.ToHtml(XhtmlMarkupFormatter.Instance).Trim();
+            return element?.InnerHtml.Trim();
         }
 
         private IElement GetElement(IDocument document, string parser, ParserType parserType)
