@@ -1,7 +1,8 @@
 ﻿using AngleSharp;
 using AngleSharp.Dom;
-using AngleSharp.Html.Dom;
+using AngleSharp.Xhtml;
 using ParserEngine.Models;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,80 +14,68 @@ namespace ParserEngine.Engine
         private readonly IBrowsingContext Context;
         public CoreEngine()
         {
-           var config = Configuration.Default
-                                     .WithDefaultLoader()
-                                     .WithCss()
-                                     .WithJs();
+            var config = Configuration.Default.WithDefaultLoader();
             Context = BrowsingContext.New(config);
         }
         public async Task<bool> Parse(Book book)
         {
-            await Task.Delay(2000);
-            using (var document = await Context.OpenAsync(book.Url))
+            var chapter = await GetChapter(book, book.Url);
+            if (chapter == null) return false;
+            book.Chapters.Add(chapter);
+            while (!string.IsNullOrWhiteSpace(chapter.NextUrl))
             {
-                var chapter = await GetChapter(book, document);
-                if (chapter == null) return false;
-                book.Chapters.Add(chapter);
-
-                while (!string.IsNullOrWhiteSpace(chapter.NextUrl))
-                {
-                    await Task.Delay(1000);
-                    var navDocument = Context.Active;
-                    chapter = await GetChapter(book, document);
-                    if (chapter == null) break;
-                    else book.Chapters.Add(chapter);
-                    navDocument.Dispose();
-                }
-                return true;
+                chapter = await GetChapter(book, chapter.NextUrl);
+                if (chapter == null) break;
+                else book.Chapters.Add(chapter);
             }
+            return true;
         }
 
-        private async Task<Chapter> GetChapter(Book book, IDocument document)
+        private async Task<Chapter> GetChapter(Book book, string url)
         {
-            if (document == null)
+            using (var document = await Context.OpenAsync(url))
             {
-                LogEngine.Error("Failed to Parse Information");
-                return null;
+                if (document == null)
+                {
+                    LogEngine.Error("Failed to Parse Information");
+                    return null;
+                }
+                var info = string.Format("{0}.{1}", book.Chapters.Count + 1, url);
+                LogEngine.Data(info);
+                var title = GetData(document, book.TitleInfo.ParseValue, book.TitleInfo.ParserType);
+                var content = GetData(document, book.ContentInfo.ParseValue, book.ContentInfo.ParserType);
+                var nextUrl = GetUrl(document, book.NextChapterInfo.ParseValue, book.NextChapterInfo.ParserType);
+                var chapterName = string.Format("index_split_{0:D3}.xhtml", book.Chapters.Count + 1);
+                var chapter = new Chapter()
+                {
+                    Name = title,
+                    FileName = Path.Combine(book.FilePath, chapterName),
+                    NextUrl = nextUrl
+                };
+                var fileContent = FileConstants.CustomContent
+                                               .Replace(FileConstants.TitleReplace, chapter.Name)
+                                               .Replace(FileConstants.ContentReplace, content);
+                await FileEngine.WriteTextAsync(chapter.FileName, fileContent);
+                return chapter;
             }
-            var info = string.Format("{0}.{1}", book.Chapters.Count + 1, document.Url);
-            LogEngine.Data(info);
-            var title = GetData(document, book.TitleInfo.ParseValue, book.TitleInfo.ParserType);
-            var content = GetData(document, book.ContentInfo.ParseValue, book.ContentInfo.ParserType);
-            var nextUrl = GetUrl(document, book.NextChapterInfo.ParseValue, book.NextChapterInfo.ParserType);
-            var chapterName = string.Format("index_split_{0:D3}.xhtml", book.Chapters.Count + 1);
-            var chapter = new Chapter()
-            {
-                Name = title,
-                FileName = Path.Combine(book.FilePath, chapterName),
-                NextUrl = nextUrl
-            };
-            var fileContent = FileConstants.CustomContent
-                                           .Replace(FileConstants.TitleReplace, chapter.Name)
-                                           .Replace(FileConstants.ContentReplace, content);
-            await FileEngine.WriteTextAsync(chapter.FileName, fileContent);
-            return chapter;
         }
 
         private string GetUrl(IDocument document, string parser, ParserType parserType)
         {
             var element = GetElement(document, parser, parserType);
-            if (element != null && element is IHtmlElement html)
-            {
-                html.DoClick();
-                return element.BaseUri;
-            }
-            else return string.Empty;
+            if (element != null && element.IsLink()) return element.GetAttribute("href");
+            else return null;
         }
 
         private string GetData(IDocument document, string parser, ParserType parserType)
         {
             var element = GetElement(document, parser, parserType);
-            return element?.InnerHtml.Trim();
+            return element?.ToHtml(XhtmlMarkupFormatter.Instance).Trim();
         }
 
         private IElement GetElement(IDocument document, string parser, ParserType parserType)
         {
-            switch(parserType)
+            switch (parserType)
             {
                 case ParserType.Class:
                     var cData = document

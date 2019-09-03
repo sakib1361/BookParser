@@ -16,8 +16,8 @@ namespace Test
                 Console.ResetColor();
             };
             LogEngine.InfoOccured += (s, e) => Console.WriteLine(e);
-            //RunLibraryDownload();
-            RunPratilipiDownload();
+            RunLibraryDownload();
+            //RunPratilipiDownload();
             Console.ReadLine();
         }
         private async static void RunPratilipiDownload()
@@ -50,13 +50,13 @@ namespace Test
             Directory.CreateDirectory(path);
             var book = new Book()
             {
-                Author = "Test",
-                Bookname = "Test",
+                Author = "Dan Brown",
+                Bookname = "Origin",
                 ContentInfo = new ParseInfo(ParserType.Class, "entry-content"),
                 FilePath = path,
                 NextChapterInfo = new ParseInfo(ParserType.Rel, "next"),
                 TitleInfo = new ParseInfo(ParserType.Class, "entry-title"),
-                Url = "https://www.ebanglalibrary.com/anubadboi/%e0%a7%a6%e0%a7%a7-%e0%a6%ac%e0%a6%bf%e0%a6%b6%e0%a7%8d%e0%a6%ac%e0%a6%9c%e0%a7%81%e0%a6%a1%e0%a6%bc%e0%a7%87-%e0%a6%b8%e0%a6%ae%e0%a6%be%e0%a6%a6%e0%a7%83%e0%a6%a4-%e0%a6%86%e0%a6%87%e0%a6%ab/"
+                Url = "https://www.ebanglalibrary.com/anubadboi/%e0%a7%a6%e0%a7%a7-%e0%a7%a7%e0%a7%a6-%e0%a6%aa%e0%a7%8d%e0%a6%b2%e0%a6%be%e0%a6%9c%e0%a6%be%e0%a6%b0-%e0%a6%89%e0%a6%aa%e0%a6%b0%e0%a7%87-%e0%a6%85%e0%a6%ac%e0%a6%bf%e0%a6%b8%e0%a7%8d%e0%a6%a5/"
             };
 
             var core = new CoreEngine();
