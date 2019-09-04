@@ -1,5 +1,4 @@
 ﻿using Jdenticon;
-using Jdenticon.Rendering;
 using ParserEngine.Models;
 using System;
 using System.Drawing;
