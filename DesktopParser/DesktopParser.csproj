@@ -31,8 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -44,6 +46,7 @@
     <Compile Include="Class1.cs" />
     <Compile Include="Engine\CoreEngine.cs" />
     <Compile Include="Engine\FileEngine.cs" />
+    <Compile Include="Engine\ImageEngine.cs" />
     <Compile Include="Engine\LogEngine.cs" />
     <Compile Include="Models\Book.cs" />
     <Compile Include="Models\FileConstants.cs" />
@@ -71,6 +74,12 @@
     </PackageReference>
     <PackageReference Include="AngleSharp.Js">
       <Version>0.12.1</Version>
+    </PackageReference>
+    <PackageReference Include="Jdenticon-net">
+      <Version>2.2.1</Version>
+    </PackageReference>
+    <PackageReference Include="Jdenticon.Gdi">
+      <Version>2.2.1</Version>
     </PackageReference>
     <PackageReference Include="System.IO.Compression.ZipFile">
       <Version>4.3.0</Version>

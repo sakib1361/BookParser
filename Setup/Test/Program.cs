@@ -1,6 +1,8 @@
-﻿using ParserEngine.Engine;
+﻿using DesktopParser.Engine;
+using ParserEngine.Engine;
 using ParserEngine.Models;
 using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace Test
@@ -16,10 +18,30 @@ namespace Test
                 Console.ResetColor();
             };
             LogEngine.InfoOccured += (s, e) => Console.WriteLine(e);
-            RunLibraryDownload();
+            //RunLibraryDownload();
             //RunPratilipiDownload();
+            ImageTest();
             Console.ReadLine();
         }
+
+        private async static void ImageTest()
+        {
+            var desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            var img = Path.Combine(desktop, "cover.jpg");
+            var book = new Book()
+            {
+                Author = "Bankim",
+                Bookname = "The other side of midnight",
+                ContentInfo = new ParseInfo(ParserType.Class, "content-section lh-md p-lr-15 fontStyleObject"),
+                FilePath = desktop,
+                NextChapterInfo = new ParseInfo(ParserType.Rel, "next"),
+                TitleInfo = new ParseInfo(ParserType.Class, "chapter-title p-lr-15"),
+                Url = "https://bengali.pratilipi.com/read?id=6019112468217856"
+            };
+            await new ImageEngine().CreateImage(book, img);
+            Process.Start(img);
+        }
+
         private async static void RunPratilipiDownload()
         {
             var desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);

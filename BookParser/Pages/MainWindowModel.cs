@@ -1,11 +1,14 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using ParserEngine.Engine;
 using ParserEngine.Models;
 using PropertyChanged;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Windows.Input;
 
 namespace BookParser
@@ -16,6 +19,7 @@ namespace BookParser
         private Website _website;
         private readonly CoreEngine CoreEngine;
         private readonly FileEngine FileEngine;
+        public ObservableCollection<string> Logs { get; private set; }
 
         public string Url { get; set; }
         public string UrlPlaceholder { get; set; }
@@ -34,10 +38,15 @@ namespace BookParser
             set => Update(value);
         }
         public List<Website> Websites => WebList.Websites;
+        public List<ParserType> ParserTypes { get; private set; }
         public MainWindowModel()
         {
             CoreEngine = new CoreEngine();
             FileEngine = new FileEngine();
+            ParserTypes = Enum.GetValues(typeof(ParserType)).Cast<ParserType>().ToList();
+            Logs = new ObservableCollection<string>();
+            LogEngine.InfoOccured += (s, e) => Logs.Insert(0, e);
+            LogEngine.ErrorOccured += (s, e) => Logs.Insert(0, e);
         }
 
         private void Update(Website website)
@@ -59,7 +68,19 @@ namespace BookParser
 
         public bool IsBusy { get; private set; }
 
-        private async void FolderAction()
+        private void FolderAction()
+        {
+            using (var dialog = new CommonOpenFileDialog())
+            {
+                dialog.IsFolderPicker = true;
+                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                {
+                    FolderPath = dialog.FileName;
+                }
+            }
+        }
+
+        private async void ParseAction()
         {
             if (string.IsNullOrEmpty(Url)) ShowMessage("Error", "Invalid Url");
             else if (string.IsNullOrEmpty(Author)) ShowMessage("Error", "Invalid Author");
@@ -87,6 +108,7 @@ namespace BookParser
                     TitleInfo = new ParseInfo(HeaderParserType, HeaderId),
                     Url = Url
                 };
+                Logs.Clear();
                 IsBusy = true;
 
                 var parseRes = await CoreEngine.Parse(book);
@@ -95,12 +117,8 @@ namespace BookParser
                     var exportFile = Path.Combine(FolderPath, book.Bookname + ".epub");
                     await FileEngine.CreateBook(book, exportFile);
                 }
+                IsBusy = false;
             }
-        }
-
-        private void ParseAction()
-        {
-            
         }
 
         private void ShowMessage(string title, string message)

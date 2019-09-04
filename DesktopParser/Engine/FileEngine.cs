@@ -1,4 +1,5 @@
-﻿using ParserEngine.Models;
+﻿using DesktopParser.Engine;
+using ParserEngine.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,6 +12,12 @@ namespace ParserEngine.Engine
 {
     public class FileEngine
     {
+        private ImageEngine ImageEngine;
+
+        public FileEngine()
+        {
+            ImageEngine = new ImageEngine();
+        }
         public async Task CreateBook(Book book, string exportPath)
         {
             var uuid = Guid.NewGuid().ToString();
@@ -22,7 +29,7 @@ namespace ParserEngine.Engine
                                     .Where(m=>m.StartsWith("index"));
 
             var mimeFile = Path.Combine(book.FilePath, "mimetype");
-
+            var imgFile = Path.Combine(book.FilePath, "cover.jpg");
             var metaDir = Path.Combine(book.FilePath, "META-INF");
             Directory.CreateDirectory(metaDir);
             var containerFile = Path.Combine(metaDir, "container.xml");
@@ -33,6 +40,7 @@ namespace ParserEngine.Engine
             await CreateTitle(titlePath);
             await WriteTextAsync(mimeFile, "application/epub+zip");
             await WriteTextAsync(containerFile, FileConstants.Container);
+            await ImageEngine.CreateImage(book, imgFile);
             LogEngine.Data("Create Completed");
             await Export(book.FilePath, exportPath);
             LogEngine.Data("Epub Created");
@@ -40,6 +48,7 @@ namespace ParserEngine.Engine
 
         private async Task Export(string source, string file)
         {
+            if (File.Exists(file)) File.Delete(file);
             await Task.Run(() => ZipFile.CreateFromDirectory(source, file));
         }
 

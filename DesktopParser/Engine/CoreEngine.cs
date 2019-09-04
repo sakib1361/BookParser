@@ -63,7 +63,8 @@ namespace ParserEngine.Engine
         private string GetUrl(IDocument document, string parser, ParserType parserType)
         {
             var element = GetElement(document, parser, parserType);
-            if (element != null && element.IsLink()) return element.GetAttribute("href");
+            if (element != null && element.IsLink())
+                return element.GetAttribute("href");
             else return null;
         }
 
@@ -78,16 +79,16 @@ namespace ParserEngine.Engine
             switch (parserType)
             {
                 case ParserType.Class:
-                    var cData = document
-                         .All
-                         .FirstOrDefault(m => m.ClassList.Contains(parser));
+                    var cData = document.All
+                                        .FirstOrDefault(m => m.ClassList.Contains(parser));
                     return cData;
                 case ParserType.Id:
                     var iData = document.All.FirstOrDefault(x => x.Id == parser);
                     return iData;
                 case ParserType.Rel:
                     var rData = document.All
-                                        .Where(x => x.HasAttribute("rel") && x.GetAttribute("rel") == parser)
+                                        .Where(x =>x.LocalName == "a" &&
+                                                   x.HasAttribute("rel") && x.GetAttribute("rel") == parser)
                                         .FirstOrDefault();
                     return rData;
             }
