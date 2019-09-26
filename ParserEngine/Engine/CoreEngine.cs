@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace ParserEngine.Engine
 {
-    public class CoreEngine
+    public class CoreEngine:IDisposable
     {
-        private readonly IBrowsingContext Context;
+        private IBrowsingContext Context;
         public CoreEngine()
         {
             var config = Configuration.Default.WithDefaultLoader();
@@ -93,6 +93,15 @@ namespace ParserEngine.Engine
                     return rData;
             }
             return null;
+        }
+
+        public void Dispose()
+        {
+            try
+            {
+                Context = null;
+            }
+            catch { }
         }
     }
 }

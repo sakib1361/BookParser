@@ -1,0 +1,11 @@
+﻿@using ParserEngine.Models
+@model BookParserWeb.Models.HomeViewModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <select asp-for="ContentIdType" asp-items="Html.GetEnumSelectList<ParserType>()">
+        <option selected="selected" value="">Please select</option>
+    </select>
+</div>
