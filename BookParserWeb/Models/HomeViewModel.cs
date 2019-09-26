@@ -12,8 +12,9 @@ namespace BookParserWeb.Models
     public class HomeViewModel
     {
         private Website _website;
-       
+
         [Required]
+        [Url]
         public string Url { get; set; }
         public string UrlPlaceholder { get; set; }
         [Required]
@@ -31,6 +32,7 @@ namespace BookParserWeb.Models
         [Required]
         public string NextPageId { get; set; }
         [Required]
+        [Display(Name = "Next Page Id Type")]
         public ParserType NextPageIdType { get; set; }
         public SelectList ParserTypes { get; set; }
 
@@ -43,6 +45,7 @@ namespace BookParserWeb.Models
             HeaderParserType = eLibrary.HeaderType;
             NextPageId = eLibrary.NextData;
             NextPageIdType = eLibrary.NextType;
+            UrlPlaceholder = "https://" + eLibrary.BaseUrl;
         }
     }
 }

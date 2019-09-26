@@ -1,0 +1,63 @@
+﻿@using ParserEngine.Models
+@model HomeViewModel
+    <form class="m-3 p-5" asp-controller="Home"
+          data-ajax="true"
+          data-ajax-method="POST"
+          data-ajax-update="#panel"
+          asp-action="CreateBook">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
+            <label asp-for="Url"></label>
+            <input type="text" asp-for="Url" class="form-control mb-4"
+                   placeholder=@Model.UrlPlaceholder>
+            <span asp-validation-for="Url" class="text-danger"></span>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <label asp-for="Bookname"></label>
+                <input type="text" asp-for="Bookname" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label asp-for="Author"></label>
+                <input type="text" asp-for="Author" class="form-control mb-4">
+            </div>
+            <hr class="col-12" />
+            <div class="col-6">
+                <label asp-for="NextPageId"></label>
+                <input type="text" asp-for="NextPageId" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label asp-for="NextPageIdType"></label>
+                <select asp-for="NextPageIdType"
+                        class="form-control"
+                        asp-items="Html.GetEnumSelectList<ParserType>()">
+                    <option selected="selected" value="">Please select</option>
+                </select>
+            </div>
+            <div class="col-6">
+                <label asp-for="HeaderId"></label>
+                <input type="text" asp-for="HeaderId" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label asp-for="HeaderParserType"></label>
+                <select asp-for="HeaderParserType"
+                        class="form-control"
+                        asp-items="Html.GetEnumSelectList<ParserType>()">
+                    <option selected="selected" value="">Please select</option>
+                </select>
+            </div>
+            <div class="col-6">
+                <label asp-for="ContentId"></label>
+                <input type="text" asp-for="ContentId" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label asp-for="ContentIdType"></label>
+                <select asp-for="ContentIdType"
+                        class="form-control"
+                        asp-items="Html.GetEnumSelectList<ParserType>()">
+                    <option selected="selected" value="">Please select</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn btn-info btn-block my-4" type="submit">Submit</button>
+    </form>
