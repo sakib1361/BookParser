@@ -12,7 +12,7 @@ namespace ParserEngine.Engine
 {
     public class FileEngine
     {
-        private ImageEngine ImageEngine;
+        private readonly ImageEngine ImageEngine;
 
         public FileEngine()
         {
@@ -50,6 +50,7 @@ namespace ParserEngine.Engine
         {
             if (File.Exists(file)) File.Delete(file);
             await Task.Run(() => ZipFile.CreateFromDirectory(source, file));
+            Directory.Delete(source, true);
         }
 
         private async Task CreateOpf(string filePath, string customAuthor,string customTitle, string customUUID,IEnumerable<string> files)

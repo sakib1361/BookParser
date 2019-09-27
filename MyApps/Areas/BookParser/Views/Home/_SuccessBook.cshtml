@@ -1,0 +1,37 @@
+﻿@using ParserEngine.Models
+@model Book
+<div>
+    <div class="card-body d-flex flex-row">
+        <!-- Content -->
+        <div>
+            <!-- Title -->
+            <h4 class="card-title font-weight-bold mb-2">@Model.Bookname</h4>
+            <!-- Subtitle -->
+            <p class="card-text">@Model.Author</p>
+        </div>
+    </div>
+    <!-- Card image -->
+    <div class="view overlay border">
+        <img class="card-img-top rounded-0"
+             src="@Model.EncodedImage"
+             alt="Card image cap">
+        <a href="#!">
+            <div class="mask rgba-white-slight"></div>
+        </a>
+    </div>
+
+    <!-- Card content -->
+    <div class="card-body">
+
+        <div class="collapse-content">
+
+            <!-- Text -->
+            <p class="card-text">This Link will be valid for 24 hours.</p>
+            <!-- Button -->
+            <a class="btn btn-cyan flex-center"
+               asp-action="DownloadBook"
+               asp-controller="Home"
+               asp-route-data="@Model.DownloadLink">Download</a>
+        </div>
+    </div>
+</div>

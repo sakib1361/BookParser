@@ -14,6 +14,9 @@ namespace ParserEngine.Models
         public ParseInfo TitleInfo { get; set; }
         public ParseInfo ContentInfo { get; set; }
         public ParseInfo NextChapterInfo { get; set; }
+        public string EncodedImage { get; set; }
+        public string DownloadLink { get; set; }
+
         public Book()
         {
             Chapters = new List<Chapter>();

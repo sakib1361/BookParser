@@ -1,6 +1,6 @@
 using System;
 
-namespace BookParserWeb.Models
+namespace MyApps.Models
 {
     public class ErrorViewModel
     {

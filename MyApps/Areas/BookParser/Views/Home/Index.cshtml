@@ -1,12 +1,15 @@
-﻿@using ParserEngine.Models
-@model HomeViewModel
+﻿
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model MyApps.Areas.BookParser.Models.HomeViewModel
 @{
     ViewData["Title"] = "Home Page";
 }
 
 <div class="row">
     <div class="card h-75 mx-auto col-lg-8 col-md-10 col-sm-12 flex-center">
-
         <div id="panel">
             @await Html.PartialAsync("_PartialForm", Model)
         </div>
@@ -15,3 +18,4 @@
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 }
+

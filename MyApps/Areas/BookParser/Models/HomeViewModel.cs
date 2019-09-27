@@ -1,18 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using ParserEngine.Engine;
 using ParserEngine.Models;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Threading.Tasks;
 
-namespace BookParserWeb.Models
+namespace MyApps.Areas.BookParser.Models
 {
     public class HomeViewModel
     {
-        private Website _website;
-
         [Required]
         [Url]
         public string Url { get; set; }
@@ -34,7 +28,6 @@ namespace BookParserWeb.Models
         [Required]
         [Display(Name = "Next Page Id Type")]
         public ParserType NextPageIdType { get; set; }
-        public SelectList ParserTypes { get; set; }
 
         public HomeViewModel()
         {

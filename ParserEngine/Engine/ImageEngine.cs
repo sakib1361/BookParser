@@ -20,6 +20,8 @@ namespace DesktopParser.Engine
                     var encoderParameters = new EncoderParameters(1);
                     encoderParameters.Param[0] = new EncoderParameter(Encoder.Quality, 100L);
                     img.Save(filePath, GetEncoder(ImageFormat.Jpeg), encoderParameters);
+                    var bData = File.ReadAllBytes(filePath);
+                    book.EncodedImage = "data:image/jpeg;base64, " + Convert.ToBase64String(bData);
                 }
             });
         }
