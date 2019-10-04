@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -42,7 +43,7 @@ namespace MyApps.Areas.BookParser.Controllers
                 {
                     var folderPath = Path.Combine(Path.GetTempPath(), AppConstants.AppName);
                     Directory.CreateDirectory(folderPath);
-                    var bookFactory = Path.Combine(folderPath, book.Bookname + "_Factory");
+                    var bookFactory = Path.Combine(folderPath, RandomString(8) + "_Factory");
                     if (Directory.Exists(bookFactory))
                     {
                         Directory.Delete(bookFactory, true);
@@ -60,6 +61,7 @@ namespace MyApps.Areas.BookParser.Controllers
                         _logger.LogInformation("Book Created {0}", book.Bookname);
                     }
                     book.DownloadLink = book.Bookname;
+                    Cleanup(folderPath);
                     return PartialView("_SuccessBook", book);
                 }
                 catch (Exception ex)
@@ -69,6 +71,21 @@ namespace MyApps.Areas.BookParser.Controllers
                 }
             }
             else return PartialView("_PartialForm", viewModel);
+        }
+
+        private void Cleanup(string folderPath)
+        {
+            if (Directory.Exists(folderPath))
+            {
+                foreach(var file in Directory.GetFiles(folderPath))
+                {
+                    var fInfo = new FileInfo(file);
+                    if((DateTime.UtcNow - fInfo.CreationTimeUtc).TotalDays > 1)
+                    {
+                        fInfo.Delete();
+                    }
+                }
+            }
         }
 
         [HttpGet]
@@ -92,6 +109,14 @@ namespace MyApps.Areas.BookParser.Controllers
                 return BadRequest();
             }
 
+        }
+
+        private readonly Random random = new Random();
+        public string RandomString(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
         }
     }
 }

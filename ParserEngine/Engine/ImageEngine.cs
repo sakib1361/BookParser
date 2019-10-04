@@ -10,6 +10,8 @@ namespace DesktopParser.Engine
 {
     public class ImageEngine
     {
+        private const int height = 600;
+        private const int width = 384;
         public async Task CreateImage(Book book, string filePath)
         {
             if (File.Exists(filePath)) File.Delete(filePath);
@@ -51,9 +53,9 @@ namespace DesktopParser.Engine
                 ColorLightness = Range.Create(0.7f, 0.9f),
                 GrayscaleLightness = Range.Create(0.3f, 0.9f)
             };
-            var icon = Identicon.FromValue(bookName, 300);
+            var icon = Identicon.FromValue(bookName, height);
             icon.Style = iconStyle;
-            var bmp = new Bitmap(300,400);
+            var bmp = new Bitmap(width,height);
             using (var graphics = Graphics.FromImage(bmp))
             {
                 icon.Draw(graphics, new Jdenticon.Rendering.Rectangle(0, 0, bmp.Height, bmp.Height));
@@ -61,14 +63,15 @@ namespace DesktopParser.Engine
                 var authorFont = new Font(FontFamily.GenericSansSerif, 12, FontStyle.Regular);
                 var sf = new StringFormat
                 {
-                    Alignment = StringAlignment.Center
+                    Alignment = StringAlignment.Near
                 };
 
                 SizeF s = graphics.MeasureString(bookName, nameFont);
-                float fontScale = Math.Max(s.Width / bmp.Width, s.Height / bmp.Height);
+                float fontScale = s.Width / bmp.Width;
+
                 using (var font = new Font(FontFamily.GenericSansSerif, 20 / fontScale, GraphicsUnit.Point))
                 {
-                    graphics.DrawString(bookName, font, Brushes.Black, 150, 30, sf);
+                    graphics.DrawString(bookName, font, Brushes.Black, 30, 30, sf);
                 }
                 graphics.DrawString(author, authorFont, Brushes.Black, 150, 300, sf);
                 graphics.Flush();
