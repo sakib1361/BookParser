@@ -67,6 +67,7 @@ namespace MyApps.Areas.BookParser.Controllers
                 catch (Exception ex)
                 {
                     ViewData["Error"] = ex.Message;
+                    _logger.LogError(ex, "Create book");
                     return PartialView("_PartialForm", viewModel);
                 }
             }

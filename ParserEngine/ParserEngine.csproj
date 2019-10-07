@@ -5,9 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="0.12.1" />
+    <PackageReference Include="AngleSharp" Version="0.13.0" />
     <PackageReference Include="Jdenticon-net" Version="2.2.1" />
     <PackageReference Include="Jdenticon.Gdi" Version="2.2.1" />
+    <PackageReference Include="System.Drawing.Common" Version="4.6.0" />
   </ItemGroup>
 
 </Project>

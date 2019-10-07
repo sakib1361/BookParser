@@ -55,10 +55,12 @@ namespace DesktopParser.Engine
             };
             var icon = Identicon.FromValue(bookName, height);
             icon.Style = iconStyle;
+      
             var bmp = new Bitmap(width,height);
             using (var graphics = Graphics.FromImage(bmp))
             {
                 icon.Draw(graphics, new Jdenticon.Rendering.Rectangle(0, 0, bmp.Height, bmp.Height));
+                
                 var nameFont = new Font(FontFamily.GenericSansSerif, 20, FontStyle.Bold);
                 var authorFont = new Font(FontFamily.GenericSansSerif, 12, FontStyle.Regular);
                 var sf = new StringFormat
@@ -69,9 +71,9 @@ namespace DesktopParser.Engine
                 SizeF s = graphics.MeasureString(bookName, nameFont);
                 float fontScale = s.Width / bmp.Width;
 
-                using (var font = new Font(FontFamily.GenericSansSerif, 20 / fontScale, GraphicsUnit.Point))
+                using (var font = new Font(FontFamily.GenericSerif, 20 / fontScale, GraphicsUnit.Point))
                 {
-                    graphics.DrawString(bookName, font, Brushes.Black, 30, 30, sf);
+                    graphics.DrawString(bookName, font, Brushes.Black, 0, 30, sf);
                 }
                 graphics.DrawString(author, authorFont, Brushes.Black, 150, 300, sf);
                 graphics.Flush();
