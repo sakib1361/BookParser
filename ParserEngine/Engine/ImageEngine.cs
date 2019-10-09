@@ -3,6 +3,7 @@ using ParserEngine.Models;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Drawing.Text;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -12,12 +13,13 @@ namespace DesktopParser.Engine
     {
         private const int height = 600;
         private const int width = 384;
-        public async Task CreateImage(Book book, string filePath)
+        public async Task CreateImage(Book book, string filePath, string fontName = "")
         {
+            
             if (File.Exists(filePath)) File.Delete(filePath);
             await Task.Run(() =>
             {
-                using (var img = ConvertTextToImage(book.Author, book.Bookname))
+                using (var img = ConvertTextToImage(book.Author, book.Bookname, fontName))
                 {
                     var encoderParameters = new EncoderParameters(1);
                     encoderParameters.Param[0] = new EncoderParameter(Encoder.Quality, 100L);
@@ -43,8 +45,13 @@ namespace DesktopParser.Engine
             return null;
         }
 
-        private Bitmap ConvertTextToImage(string author, string bookName)
+        private Bitmap ConvertTextToImage(string author, string bookName, string fontname)
         {
+            if (string.IsNullOrWhiteSpace(fontname))
+            {
+                fontname = FontFamily.GenericSansSerif.Name;
+            }
+            
             var iconStyle = new IdenticonStyle
             {
                 Padding = 0.10f,
@@ -55,14 +62,14 @@ namespace DesktopParser.Engine
             };
             var icon = Identicon.FromValue(bookName, height);
             icon.Style = iconStyle;
-      
-            var bmp = new Bitmap(width,height);
+
+            var bmp = new Bitmap(width, height);
             using (var graphics = Graphics.FromImage(bmp))
             {
                 icon.Draw(graphics, new Jdenticon.Rendering.Rectangle(0, 0, bmp.Height, bmp.Height));
-                
-                var nameFont = new Font(FontFamily.GenericSerif, 20, FontStyle.Bold);
-                var authorFont = new Font(FontFamily.GenericSerif, 12, FontStyle.Regular);
+
+                var nameFont = new Font(fontname, 20, FontStyle.Bold);
+                var authorFont = new Font(fontname, 12, FontStyle.Regular);
                 var sf = new StringFormat
                 {
                     Alignment = StringAlignment.Near
@@ -71,7 +78,7 @@ namespace DesktopParser.Engine
                 SizeF s = graphics.MeasureString(bookName, nameFont);
                 float fontScale = s.Width / bmp.Width;
 
-                using (var font = new Font(FontFamily.GenericSerif, 20 / fontScale, GraphicsUnit.Point))
+                using (var font = new Font(fontname, 20 / fontScale, GraphicsUnit.Point))
                 {
                     graphics.DrawString(bookName, font, Brushes.Black, 0, 30, sf);
                 }

@@ -15,18 +15,25 @@ namespace ParserEngine.Engine
     {
         private const int height = 600;
         private const int width = 384;
-        public async Task CreateImage(Book book, string filePath)
+        public async Task CreateImage(Book book, string filePath, string fontName = "")
         {
             if (File.Exists(filePath)) File.Delete(filePath);
             await Task.Run(() =>
             {
-                ConvertTextToImage(book.Author, book.Bookname, filePath);
-                var bData = File.ReadAllBytes(filePath);
-                book.EncodedImage = "data:image/jpeg;base64, " + Convert.ToBase64String(bData);
+                try
+                {
+                    ConvertTextToImage(book.Author, book.Bookname, filePath, fontName);
+                    var bData = File.ReadAllBytes(filePath);
+                    book.EncodedImage = "data:image/jpeg;base64, " + Convert.ToBase64String(bData);
+                }
+                catch (Exception ex)
+                {
+                    LogEngine.Error(ex.Message);
+                }
             });
         }
 
-        private void ConvertTextToImage(string author, string bookname, string filePath)
+        private void ConvertTextToImage(string author, string bookname, string filePath, string fontName)
         {
             var iconStyle = new IdenticonStyle
             {
@@ -38,33 +45,39 @@ namespace ParserEngine.Engine
             };
             var icon = Identicon.FromValue(bookname, height);
             icon.Style = iconStyle;
-            icon.SaveAsPng(filePath);
-
-            var temp = Path.GetTempFileName();
-            using (var img = Image.Load(filePath))
+            using(var memStream = new MemoryStream())
             {
-                // For production application we would recommend you create a FontCollection
-                // singleton and manually install the ttf fonts yourself as using SystemFonts
-                // can be expensive and you risk font existing or not existing on a deployment
-                // by deployment basis.
-                FontFamily fontFamily = GetFont();
-                
-                Font font = fontFamily.CreateFont(40);
-                Font book = fontFamily.CreateFont(30);
-                img.Mutate(m => m.Resize(width, height));
-                img.Mutate(m => DrawData(m, font, bookname, Color.Black, 50,15));
-                img.Mutate(m => DrawData(m, book, author, Color.Black, height-50,15));
-                img.Save(filePath);
-            }
+                icon.SaveAsPng(memStream);
+                memStream.Seek(0, SeekOrigin.Begin);
+                using (var img = Image.Load(memStream))
+                {
+                    // For production application we would recommend you create a FontCollection
+                    // singleton and manually install the ttf fonts yourself as using SystemFonts
+                    // can be expensive and you risk font existing or not existing on a deployment
+                    // by deployment basis.
+                    FontFamily fontFamily = GetFont(fontName);
+                    Font font = fontFamily.CreateFont(40);
+                    Font book = fontFamily.CreateFont(30);
+                    img.Mutate(m => m.Resize(width, height));
+                    img.Mutate(m => DrawData(m, font, bookname, Color.Black, 50, 15));
+                    img.Mutate(m => DrawData(m, book, author, Color.Black, height - 50, 15));
+                    img.Save(filePath);
+                }
+            }            
         }
 
         private static FontFamily FontFamily;
-        private FontFamily GetFont()
+        private FontFamily GetFont(string fontName)
         {
-            if (FontFamily == null)
+            //if (FontFamily == null)
             {
-             
-                if (SystemFonts.TryFind("Nirmala Ui", out FontFamily win))
+
+                if(!string.IsNullOrWhiteSpace(fontName) &&
+                    SystemFonts.TryFind(fontName,out FontFamily custom))
+                {
+                    FontFamily = custom;
+                }
+                else if (SystemFonts.TryFind("Microsoft Sans Serif", out FontFamily win))
                 {
                     FontFamily = win;
                 }
@@ -95,16 +108,19 @@ namespace ParserEngine.Engine
                               float paddingTop,
                               float paddingLeft)
         {
-                var imgSize = processingContext.GetCurrentSize();
-                float targetWidth = imgSize.Width - (paddingLeft * 2);
-                var center = new PointF(paddingLeft, paddingTop);
-                var textGraphicOptions = new TextGraphicsOptions(true)
-                {
-                    HorizontalAlignment = HorizontalAlignment.Left,
-                    VerticalAlignment = VerticalAlignment.Top,
-                    WrapTextWidth = targetWidth,
-                };
-                processingContext.DrawText(textGraphicOptions, text, font, color, center);
-            }
+            var imgSize = processingContext.GetCurrentSize();
+            float targetWidth = imgSize.Width - (paddingLeft * 2);
+            var center = new PointF(paddingLeft, paddingTop);
+            var textGraphicOptions = new TextGraphicsOptions()
+            {
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Top,
+                WrapTextWidth = targetWidth,
+                ApplyKerning = true,
+             
+            };
+            processingContext.DrawText(text, font, color, center);
+            //processingContext.DrawText(textGraphicOptions, text, font, color, center);
+        }
     }
 }

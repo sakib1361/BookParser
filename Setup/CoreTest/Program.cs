@@ -3,6 +3,7 @@ using ParserEngine.Engine;
 using ParserEngine.Models;
 using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 
 namespace CoreTest
@@ -27,18 +28,29 @@ namespace CoreTest
         private async static void ImageTest()
         {
             var desktop = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            var img = Path.Combine(desktop, "cover.jpg");
+            desktop = Path.Combine(desktop, "Test");
+            Directory.CreateDirectory(desktop);
+            
             var book = new Book()
             {
                 Author = "Bankim",
-                Bookname = "পিয়েরে বুল",
+                Bookname = "পিয়েরে বুল 夏目漱石",
                 ContentInfo = new ParseInfo(ParserType.Class, "content-section lh-md p-lr-15 fontStyleObject"),
                 FilePath = desktop,
                 NextChapterInfo = new ParseInfo(ParserType.Rel, "next"),
                 TitleInfo = new ParseInfo(ParserType.Class, "chapter-title p-lr-15"),
                 Url = "https://bengali.pratilipi.com/read?id=6019112468217856"
             };
-            await new ImageEngine().CreateImage(book, img);
+
+            foreach (var item in FontFamily.Families)
+            {
+                var imgname = string.Format("cover {0}.jpg", item.Name);
+                var path = Path.Combine(desktop, imgname);
+                await new ImageEngine().CreateImage(book, path, item.Name);
+                Console.WriteLine(item.Name);
+            }
+
+           
             Console.WriteLine("Image Test Passed");
             //Process.Start(img);
         }
