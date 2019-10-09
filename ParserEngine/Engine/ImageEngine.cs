@@ -61,8 +61,8 @@ namespace DesktopParser.Engine
             {
                 icon.Draw(graphics, new Jdenticon.Rendering.Rectangle(0, 0, bmp.Height, bmp.Height));
                 
-                var nameFont = new Font(FontFamily.GenericSansSerif, 20, FontStyle.Bold);
-                var authorFont = new Font(FontFamily.GenericSansSerif, 12, FontStyle.Regular);
+                var nameFont = new Font(FontFamily.GenericSerif, 20, FontStyle.Bold);
+                var authorFont = new Font(FontFamily.GenericSerif, 12, FontStyle.Regular);
                 var sf = new StringFormat
                 {
                     Alignment = StringAlignment.Near

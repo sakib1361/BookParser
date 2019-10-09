@@ -6,12 +6,12 @@ using System.IO;
 using System.Threading.Tasks;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.Primitives;
+using System.Linq;
 
 namespace ParserEngine.Engine
 {
-    class CoverEngine
+    public class CoverEngine
     {
         private const int height = 600;
         private const int width = 384;
@@ -20,17 +20,13 @@ namespace ParserEngine.Engine
             if (File.Exists(filePath)) File.Delete(filePath);
             await Task.Run(() =>
             {
-                using (var img = ConvertTextToImage(book.Author, book.Bookname))
-                {
-
-                    //img.Save(filePath, GetEncoder(ImageFormat.Jpeg), encoderParameters);
-                    var bData = File.ReadAllBytes(filePath);
-                    book.EncodedImage = "data:image/jpeg;base64, " + Convert.ToBase64String(bData);
-                }
+                ConvertTextToImage(book.Author, book.Bookname, filePath);
+                var bData = File.ReadAllBytes(filePath);
+                book.EncodedImage = "data:image/jpeg;base64, " + Convert.ToBase64String(bData);
             });
         }
 
-        private IDisposable ConvertTextToImage(string author, string bookname)
+        private void ConvertTextToImage(string author, string bookname, string filePath)
         {
             var iconStyle = new IdenticonStyle
             {
@@ -42,94 +38,73 @@ namespace ParserEngine.Engine
             };
             var icon = Identicon.FromValue(bookname, height);
             icon.Style = iconStyle;
+            icon.SaveAsPng(filePath);
 
             var temp = Path.GetTempFileName();
-            using (var img = Image.Load("fb.jpg"))
+            using (var img = Image.Load(filePath))
             {
                 // For production application we would recommend you create a FontCollection
                 // singleton and manually install the ttf fonts yourself as using SystemFonts
                 // can be expensive and you risk font existing or not existing on a deployment
                 // by deployment basis.
-                Font font = SystemFonts.Families.GetEnumerator().Current.CreateFont(10);// ("Arial", 10); // for scaling water mark size is largely ignored.
-
-                using (var img2 = img.Clone(ctx => ctx.ApplyScalingWaterMark(font, "A short piece of text", Color.HotPink, 5, false)))
-                {
-                    img2.Save("output/simple.png");
-                }
-
-
-                using (var img2 = img.Clone(ctx => ctx.ApplyScalingWaterMark(font, LongText, Color.HotPink, 5, true)))
-                {
-                    img2.Save("output/wrapped.png");
-                }
-                return null;
+                FontFamily fontFamily = GetFont();
+                
+                Font font = fontFamily.CreateFont(40);
+                Font book = fontFamily.CreateFont(30);
+                img.Mutate(m => m.Resize(width, height));
+                img.Mutate(m => DrawData(m, font, bookname, Color.Black, 50,15));
+                img.Mutate(m => DrawData(m, book, author, Color.Black, height-50,15));
+                img.Save(filePath);
             }
         }
-        private static IImageProcessingContext ApplyScalingWaterMarkWordWrap(IImageProcessingContext processingContext,
-   Font font,
-   string text,
-   Color color,
-   float padding)
+
+        private static FontFamily FontFamily;
+        private FontFamily GetFont()
         {
-            var imgSize = processingContext.GetCurrentSize();
-            float targetWidth = imgSize.Width - (padding * 2);
-            float targetHeight = imgSize.Height - (padding * 2);
-
-            float targetMinHeight = imgSize.Height - (padding * 3); // must be with in a margin width of the target height
-
-            // now we are working i 2 dimensions at once and can't just scale because it will cause the text to
-            // reflow we need to just try multiple times
-
-            var scaledFont = font;
-            SizeF s = new SizeF(float.MaxValue, float.MaxValue);
-
-            float scaleFactor = (scaledFont.Size / 2); // every time we change direction we half this size
-            int trapCount = (int)scaledFont.Size * 2;
-            if (trapCount < 10)
+            if (FontFamily == null)
             {
-                trapCount = 10;
-            }
-
-            bool isTooSmall = false;
-
-            while ((s.Height > targetHeight || s.Height < targetMinHeight) && trapCount > 0)
-            {
-                if (s.Height > targetHeight)
+             
+                if (SystemFonts.TryFind("Nirmala Ui", out FontFamily win))
                 {
-                    if (isTooSmall)
-                    {
-                        scaleFactor = scaleFactor / 2;
-                    }
-
-                    scaledFont = new Font(scaledFont, scaledFont.Size - scaleFactor);
-                    isTooSmall = false;
+                    FontFamily = win;
                 }
-
-                if (s.Height < targetMinHeight)
+                else if (SystemFonts.TryFind("San Francisco", out FontFamily mac))
                 {
-                    if (!isTooSmall)
-                    {
-                        scaleFactor = scaleFactor / 2;
-                    }
-                    scaledFont = new Font(scaledFont, scaledFont.Size + scaleFactor);
-                    isTooSmall = true;
+                    FontFamily = mac;
                 }
-                trapCount--;
-
-                s = TextMeasurer.Measure(text, new RendererOptions(scaledFont)
+                else if (SystemFonts.TryFind("DejaVu Sans", out FontFamily linux))
                 {
-                    WrappingWidth = targetWidth
-                });
+                    FontFamily = linux;
+                }
+                else if (SystemFonts.TryFind("Lucida", out FontFamily other))
+                {
+                    FontFamily = other;
+                }
+                else
+                {
+                    FontFamily = SystemFonts.Families.FirstOrDefault();
+                }
             }
-
-            var center = new PointF(padding, imgSize.Height / 2);
-            var textGraphicOptions = new TextGraphicsOptions(true)
-            {
-                HorizontalAlignment = HorizontalAlignment.Left,
-                VerticalAlignment = VerticalAlignment.Center,
-                WrapTextWidth = targetWidth
-            };
-            return processingContext.DrawText(textGraphicOptions, text, scaledFont, color, center);
+            return FontFamily;
         }
+
+        private void DrawData(IImageProcessingContext processingContext,
+                              Font font,
+                              string text,
+                              Color color,
+                              float paddingTop,
+                              float paddingLeft)
+        {
+                var imgSize = processingContext.GetCurrentSize();
+                float targetWidth = imgSize.Width - (paddingLeft * 2);
+                var center = new PointF(paddingLeft, paddingTop);
+                var textGraphicOptions = new TextGraphicsOptions(true)
+                {
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    WrapTextWidth = targetWidth,
+                };
+                processingContext.DrawText(textGraphicOptions, text, font, color, center);
+            }
     }
 }
