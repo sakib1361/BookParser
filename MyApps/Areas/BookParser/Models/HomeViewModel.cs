@@ -18,6 +18,10 @@ namespace MyApps.Areas.BookParser.Models
         [Required]
         public string ContentId { get; set; }
         [Required]
+        public string ArbitaryInfo { get; set; }
+        [Required]
+        public ParserType ArbitaryType { get; set; }
+        [Required]
         public ParserType ContentIdType { get; set; }
         [Required]
         public string HeaderId { get; set; }
@@ -38,6 +42,8 @@ namespace MyApps.Areas.BookParser.Models
             HeaderParserType = eLibrary.HeaderType;
             NextPageId = eLibrary.NextData;
             NextPageIdType = eLibrary.NextType;
+            ArbitaryInfo = eLibrary.ArbitaryData;
+            ArbitaryType = eLibrary.ArbitaryType;
             UrlPlaceholder = "https://" + eLibrary.BaseUrl;
         }
     }

@@ -45,6 +45,14 @@ namespace ParserEngine.Engine
                 var title = GetData(document, book.TitleInfo.ParseValue, book.TitleInfo.ParserType);
                 var content = GetData(document, book.ContentInfo.ParseValue, book.ContentInfo.ParserType);
                 var nextUrl = GetUrl(document, book.NextChapterInfo.ParseValue, book.NextChapterInfo.ParserType);
+                foreach (var ar in book.ArbitaryInfo.ParseValue.Split(' '))
+                {
+                    var arbitaryData = GetData(document, ar, book.ArbitaryInfo.ParserType);
+                    if (arbitaryData != null)
+                       content =  content.Replace(arbitaryData, "");
+                }
+
+
                 var chapterName = string.Format("index_split_{0:D3}.xhtml", book.Chapters.Count + 1);
                 var chapter = new Chapter()
                 {

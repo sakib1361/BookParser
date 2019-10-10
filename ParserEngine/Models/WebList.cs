@@ -9,8 +9,8 @@ namespace ParserEngine.Models
         public static List<Website> Websites = new List<Website>()
         {
             new Website("ebanglalibrary.com",
-                        "entry-title","entry-content","next",
-                        ParserType.Class,ParserType.Class,ParserType.Rel),
+                        "entry-title","entry-content","next", "scriptlesssocialsharing",
+                        ParserType.Class,ParserType.Class,ParserType.Rel, ParserType.Class),
             new Website("Others")
         };
     }
@@ -21,8 +21,8 @@ namespace ParserEngine.Models
         {
             BaseUrl = url;
         }
-        internal Website(string url, string header,string content, string next,
-                                   ParserType headerT,ParserType contentT, ParserType nextT)
+        internal Website(string url, string header,string content, string next,string arbitary,
+                                   ParserType headerT,ParserType contentT, ParserType nextT, ParserType aType)
         {
             BaseUrl = url;
             HeaderData = header;
@@ -31,6 +31,8 @@ namespace ParserEngine.Models
             HeaderType = headerT;
             ContentType = contentT;
             NextType = nextT;
+            ArbitaryData = arbitary;
+            ArbitaryType = aType;
         }
 
         public string BaseUrl { get; }
@@ -40,5 +42,7 @@ namespace ParserEngine.Models
         public ParserType HeaderType { get; }
         public ParserType ContentType { get; }
         public ParserType NextType { get; }
+        public string ArbitaryData { get; set; }
+        public ParserType ArbitaryType { get; set; }
     }
 }

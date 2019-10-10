@@ -12,11 +12,11 @@ namespace ParserEngine.Engine
 {
     public class FileEngine
     {
-        private readonly CoverEngine ImageEngine;
+        private readonly ImageEngine ImageEngine;
 
         public FileEngine()
         {
-            ImageEngine = new CoverEngine();
+            ImageEngine = new ImageEngine();
         }
         public async Task CreateBook(Book book, string exportPath)
         {

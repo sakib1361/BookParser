@@ -14,6 +14,7 @@ namespace ParserEngine.Models
         public ParseInfo TitleInfo { get; set; }
         public ParseInfo ContentInfo { get; set; }
         public ParseInfo NextChapterInfo { get; set; }
+        public ParseInfo ArbitaryInfo { get; set; }
         public string EncodedImage { get; set; }
         public string DownloadLink { get; set; }
 
@@ -23,6 +24,7 @@ namespace ParserEngine.Models
             TitleInfo = new ParseInfo();
             ContentInfo = new ParseInfo();
             NextChapterInfo = new ParseInfo();
+            ArbitaryInfo = new ParseInfo();
         }
     }
 

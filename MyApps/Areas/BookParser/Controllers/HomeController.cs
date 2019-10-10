@@ -37,7 +37,8 @@ namespace MyApps.Areas.BookParser.Controllers
                     Author = viewModel.Author,
                     ContentInfo = new ParseInfo(viewModel.ContentIdType, viewModel.ContentId),
                     NextChapterInfo = new ParseInfo(viewModel.NextPageIdType, viewModel.NextPageId),
-                    TitleInfo = new ParseInfo(viewModel.HeaderParserType, viewModel.HeaderId)
+                    TitleInfo = new ParseInfo(viewModel.HeaderParserType, viewModel.HeaderId),
+                    ArbitaryInfo = new ParseInfo(viewModel.ArbitaryType, viewModel.ArbitaryInfo)
                 };
                 try
                 {

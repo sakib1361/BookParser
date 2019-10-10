@@ -69,7 +69,7 @@ namespace ParserEngine.Engine
         private static FontFamily FontFamily;
         private FontFamily GetFont(string fontName)
         {
-            //if (FontFamily == null)
+            if (FontFamily == null)
             {
 
                 if(!string.IsNullOrWhiteSpace(fontName) &&

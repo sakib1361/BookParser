@@ -73,6 +73,18 @@
                     <option selected="selected" value="">Please select</option>
                 </select>
             </div>
+            <div class="col-6">
+                <label asp-for="ArbitaryInfo"></label>
+                <input type="text" asp-for="ArbitaryInfo" class="form-control mb-4">
+            </div>
+            <div class="col-6">
+                <label asp-for="ArbitaryType"></label>
+                <select asp-for="ArbitaryType"
+                        class="form-control"
+                        asp-items="Html.GetEnumSelectList<ParserType>()">
+                    <option selected="selected" value="">Please select</option>
+                </select>
+            </div>
         </div>
         <button class="btn btn-info btn-block my-4" type="submit">Submit</button>
         <div id="progressTask" class="progress" style="display:none;">
