@@ -49,8 +49,8 @@ namespace CoreTest
                 await new ImageEngine().CreateImage(book, path, item.Name);
                 Console.WriteLine(item.Name);
             }
-
-           
+            var img = Path.Combine(desktop, "Cover.jpg");
+            await new ImageEngine().CreateImage(book, img, "");
             Console.WriteLine("Image Test Passed");
             //Process.Start(img);
         }

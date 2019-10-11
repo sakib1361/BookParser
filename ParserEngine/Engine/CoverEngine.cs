@@ -119,8 +119,8 @@ namespace ParserEngine.Engine
                 ApplyKerning = true,
              
             };
-            processingContext.DrawText(text, font, color, center);
-            //processingContext.DrawText(textGraphicOptions, text, font, color, center);
+            //processingContext.DrawText(text, font, color, center);
+            processingContext.DrawText(textGraphicOptions, text, font, color, center);
         }
     }
 }

@@ -31,14 +31,14 @@ namespace Test
             var book = new Book()
             {
                 Author = "Bankim",
-                Bookname = "পিয়েরে বুল",
+                Bookname = "পিয়েরে বুল, 测试 你好吗",
                 ContentInfo = new ParseInfo(ParserType.Class, "content-section lh-md p-lr-15 fontStyleObject"),
                 FilePath = desktop,
                 NextChapterInfo = new ParseInfo(ParserType.Rel, "next"),
                 TitleInfo = new ParseInfo(ParserType.Class, "chapter-title p-lr-15"),
                 Url = "https://bengali.pratilipi.com/read?id=6019112468217856"
             };
-            await new CoverEngine().CreateImage(book, img);
+            await new ImageEngine().CreateImage(book, img, "Neo Sans Medium");
             Process.Start(img);
         }
 

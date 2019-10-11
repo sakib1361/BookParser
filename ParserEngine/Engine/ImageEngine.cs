@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DesktopParser.Engine
@@ -47,11 +48,21 @@ namespace DesktopParser.Engine
 
         private Bitmap ConvertTextToImage(string author, string bookName, string fontname)
         {
-            if (string.IsNullOrWhiteSpace(fontname))
+            FontFamily fontFamily = null;
+            if (string.IsNullOrEmpty(fontname))
             {
-                fontname = FontFamily.GenericSansSerif.Name;
+                var pfc = new PrivateFontCollection();
+                var file = Path.Combine(Environment.CurrentDirectory, "Resources", "Neo_Sans_Medium.ttf");
+                pfc.AddFontFile(file);
+                fontFamily = pfc.Families.First();
             }
-            
+            else
+            {
+                fontFamily = FontFamily.Families.FirstOrDefault(x => x.Name == fontname);
+            }
+           
+           
+      
             var iconStyle = new IdenticonStyle
             {
                 Padding = 0.10f,
@@ -68,8 +79,8 @@ namespace DesktopParser.Engine
             {
                 icon.Draw(graphics, new Jdenticon.Rendering.Rectangle(0, 0, bmp.Height, bmp.Height));
 
-                var nameFont = new Font(fontname, 20, FontStyle.Bold);
-                var authorFont = new Font(fontname, 12, FontStyle.Regular);
+                var nameFont = new Font(fontFamily, 20);
+                var authorFont = new Font(fontFamily, 12);
                 var sf = new StringFormat
                 {
                     Alignment = StringAlignment.Near
