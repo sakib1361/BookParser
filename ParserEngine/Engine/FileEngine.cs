@@ -26,7 +26,7 @@ namespace ParserEngine.Engine
             var tocPath = Path.Combine(book.FilePath, "toc.ncx");
             var allFiles = Directory.GetFiles(book.FilePath);
             var xhmlFiles = allFiles.Select(x => Path.GetFileName(x))
-                                    .Where(m=>m.StartsWith("index"));
+                                    .Where(m => m.StartsWith("index"));
 
             var mimeFile = Path.Combine(book.FilePath, "mimetype");
             var imgFile = Path.Combine(book.FilePath, "cover.jpg");

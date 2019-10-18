@@ -12,12 +12,13 @@ namespace DesktopParser.Engine
 {
     public class ImageEngine
     {
-        private const int height = 600;
-        private const int width = 384;
+        private const int height = 640;
+        private const int width = 400;
         public async Task CreateImage(Book book, string filePath, string fontName = "")
         {
             
             if (File.Exists(filePath)) File.Delete(filePath);
+            if (string.IsNullOrWhiteSpace(fontName)) fontName = FontFamily.GenericSansSerif.Name;
             await Task.Run(() =>
             {
                 using (var img = ConvertTextToImage(book.Author, book.Bookname, fontName))
@@ -48,21 +49,8 @@ namespace DesktopParser.Engine
 
         private Bitmap ConvertTextToImage(string author, string bookName, string fontname)
         {
-            FontFamily fontFamily = null;
-            if (string.IsNullOrEmpty(fontname))
-            {
-                var pfc = new PrivateFontCollection();
-                var file = Path.Combine(Environment.CurrentDirectory, "Resources", "Neo_Sans_Medium.ttf");
-                pfc.AddFontFile(file);
-                fontFamily = pfc.Families.First();
-            }
-            else
-            {
-                fontFamily = FontFamily.Families.FirstOrDefault(x => x.Name == fontname);
-            }
+            var fontFamily = FontFamily.Families.FirstOrDefault(x => x.Name == fontname);
            
-           
-      
             var iconStyle = new IdenticonStyle
             {
                 Padding = 0.10f,
@@ -93,7 +81,7 @@ namespace DesktopParser.Engine
                 {
                     graphics.DrawString(bookName, font, Brushes.Black, 0, 30, sf);
                 }
-                graphics.DrawString(author, authorFont, Brushes.Black, 150, 300, sf);
+                graphics.DrawString(author, authorFont, Brushes.Black, 50, 540, sf);
                 graphics.Flush();
                 nameFont.Dispose();
                 authorFont.Dispose();

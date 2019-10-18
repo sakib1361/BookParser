@@ -31,7 +31,8 @@ namespace BookParser
         public ParserType HeaderParserType { get; set; }
         public string NextPageId { get; set; }
         public ParserType NextPageIdType { get; set; }
-        public string FolderPath { get; set; }
+        public ParserType ArbitaryType { get; set; }
+        public string ArbitaryInfo { get; set; }
         public Website Website
         {
             get => _website;
@@ -61,22 +62,24 @@ namespace BookParser
                 HeaderParserType = website.HeaderType;
                 NextPageId = website.NextData;
                 NextPageIdType = website.NextType;
+                ArbitaryInfo = website.ArbitaryData;
+                ArbitaryType = website.ArbitaryType;
             }
         }
         public ICommand ParseCommand => new RelayCommand(ParseAction);
-        public ICommand FolderCommand => new RelayCommand(FolderAction);
 
         public bool IsBusy { get; private set; }
 
-        private void FolderAction()
+        private string FolderAction()
         {
             using (var dialog = new CommonOpenFileDialog())
             {
                 dialog.IsFolderPicker = true;
                 if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
                 {
-                    FolderPath = dialog.FileName;
+                    return dialog.FileName;
                 }
+                else return string.Empty;
             }
         }
 
@@ -91,10 +94,11 @@ namespace BookParser
                 ShowMessage("Error", "You must define the class/id of the next page");
             else if (string.IsNullOrEmpty(HeaderId))
                 ShowMessage("Error", "You must define the class/id of the next page");
-            else if (string.IsNullOrEmpty(FolderPath))
-                ShowMessage("Error", "You must define the export folder");
+           
             else
             {
+                var folder = FolderAction();
+                if (string.IsNullOrWhiteSpace(folder)) return;
                 var path = Path.GetTempPath() + Bookname;
                 if (Directory.Exists(path)) Directory.Delete(path, true);
                 Directory.CreateDirectory(path);
@@ -106,6 +110,7 @@ namespace BookParser
                     FilePath = path,
                     NextChapterInfo = new ParseInfo(NextPageIdType, NextPageId),
                     TitleInfo = new ParseInfo(HeaderParserType, HeaderId),
+                    ArbitaryInfo = new ParseInfo(ArbitaryType, ArbitaryInfo),
                     Url = Url
                 };
                 Logs.Clear();
@@ -114,7 +119,7 @@ namespace BookParser
                 var parseRes = await CoreEngine.Parse(book);
                 if (parseRes)
                 {
-                    var exportFile = Path.Combine(FolderPath, book.Bookname + ".epub");
+                    var exportFile = Path.Combine(folder, book.Bookname + ".epub");
                     await FileEngine.CreateBook(book, exportFile);
                 }
                 IsBusy = false;

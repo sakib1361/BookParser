@@ -42,15 +42,16 @@ namespace CoreTest
                 Url = "https://bengali.pratilipi.com/read?id=6019112468217856"
             };
 
+            var iEngine = new ImageEngine();
             foreach (var item in FontFamily.Families)
             {
                 var imgname = string.Format("cover {0}.jpg", item.Name);
                 var path = Path.Combine(desktop, imgname);
-                await new ImageEngine().CreateImage(book, path, item.Name);
+                await iEngine.CreateImage(book, path, item.Name);
                 Console.WriteLine(item.Name);
             }
             var img = Path.Combine(desktop, "Cover.jpg");
-            await new ImageEngine().CreateImage(book, img, "");
+            await iEngine.CreateImage(book, img, "");
             Console.WriteLine("Image Test Passed");
             //Process.Start(img);
         }
