@@ -52,7 +52,7 @@ namespace MyApps.Areas.BookParser.Controllers
                     Directory.CreateDirectory(bookFactory);
                     book.FilePath = bookFactory;
 
-                    using var coreEngine = new CoreEngine();
+                    var coreEngine = new CoreEngine();
                     var fileEngine = new FileEngine();
                     var parseRes = await coreEngine.Parse(book);
                     if (parseRes)
