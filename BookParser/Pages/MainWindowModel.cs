@@ -21,7 +21,22 @@ namespace BookParser
         private readonly FileEngine FileEngine;
         public ObservableCollection<string> Logs { get; private set; }
 
-        public string Url { get; set; }
+        string url = string.Empty;
+        public string Url
+        {
+            get => url;
+            set
+            {
+                if(url!= value)
+                {
+                    url = value;
+                    UpdateData(value);
+                }
+               
+            }
+        }
+
+        public string StartPage { get; set; }
         public string UrlPlaceholder { get; set; }
         public string Author { get; set; }
         public string Bookname { get; set; }
@@ -70,6 +85,19 @@ namespace BookParser
 
         public bool IsBusy { get; private set; }
 
+
+        private async void UpdateData(string value)
+        {
+            var book = await CoreEngine.GetBookInfo(value);
+            if(book != null)
+            {
+                Author = book.Author;
+                Bookname = book.Bookname;
+                StartPage = book.Url;
+            }
+        }
+
+
         private string FolderAction()
         {
             using (var dialog = new CommonOpenFileDialog())
@@ -85,7 +113,7 @@ namespace BookParser
 
         private async void ParseAction()
         {
-            if (string.IsNullOrEmpty(Url)) ShowMessage("Error", "Invalid Url");
+            if (string.IsNullOrEmpty(StartPage)) ShowMessage("Error", "Invalid Url");
             else if (string.IsNullOrEmpty(Author)) ShowMessage("Error", "Invalid Author");
             else if (string.IsNullOrEmpty(Bookname)) ShowMessage("Error", "Invalid bookname");
             else if (string.IsNullOrEmpty(ContentId))
@@ -111,7 +139,7 @@ namespace BookParser
                     NextChapterInfo = new ParseInfo(NextPageIdType, NextPageId),
                     TitleInfo = new ParseInfo(HeaderParserType, HeaderId),
                     ArbitaryInfo = new ParseInfo(ArbitaryType, ArbitaryInfo),
-                    Url = Url
+                    Url = StartPage
                 };
                 Logs.Clear();
                 IsBusy = true;

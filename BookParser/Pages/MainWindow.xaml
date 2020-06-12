@@ -32,6 +32,7 @@
                           md:HintAssist.IsFloating="True"
                           Margin="5"
                           md:HintAssist.Hint="Url" />
+                <Grid />
                 <ComboBox md:HintAssist.Hint="Website"
                           md:HintAssist.IsFloating="True"
                           IsEditable="True"
@@ -40,6 +41,10 @@
                           DisplayMemberPath="BaseUrl"
                           Margin="5"
                           Style="{StaticResource MaterialDesignFloatingHintComboBox}" />
+                <TextBox Text="{Binding StartPage}"
+                         md:HintAssist.IsFloating="True"
+                         Margin="5"
+                         md:HintAssist.Hint="StartPage" />
                 <TextBox  Text="{Binding Bookname}"
                           md:HintAssist.IsFloating="True"
                           Margin="5"
@@ -100,6 +105,14 @@
                     Margin="10" />
         </StackPanel>
         <ListView ItemsSource="{Binding Logs}"
-                  Grid.Row="1" />
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                  Grid.Row="1">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding}"
+                               TextWrapping="Wrap" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
     </Grid>
 </Window>
