@@ -40,7 +40,7 @@ namespace ParserEngine.Engine
             var allParts = new List<string>();
             using (var document = await Context.OpenAsync(url))
             {
-                var data = GetElement(document, "breadcrumbs", ParserType.Id);
+                var data = GetElement(document, "breadcrumb", ParserType.Class);
                 var all = data.GetElementsByTagName("span");
                 foreach (var node in all)
                 {
@@ -52,12 +52,12 @@ namespace ParserEngine.Engine
                 }
 
                 var name = string.Empty;
-                var element = GetElement(document, "page-title", ParserType.Class);
+                var element = GetElement(document, "page-header-title", ParserType.Class);
                 if (element != null)
                     name = element.InnerHtml.Trim();
 
                 var author = allParts.LastOrDefault();
-                var urlData = GetUrl(document, "more-link", ParserType.Class);
+                var urlData = GetUrl(document, "entry-more-link", ParserType.Class);
 
                 return new Book()
                 {

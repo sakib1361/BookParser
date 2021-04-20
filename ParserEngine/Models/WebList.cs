@@ -9,7 +9,7 @@ namespace ParserEngine.Models
         public static List<Website> Websites = new List<Website>()
         {
             new Website("ebanglalibrary.com",
-                        "entry-title","entry-content","next", "scriptlesssocialsharing",
+                        "entry-title","entry-content","next", "scriptlesssocialsharing mbfp-btn",
                         ParserType.Class,ParserType.Class,ParserType.Rel, ParserType.Class),
             new Website("Others")
         };
