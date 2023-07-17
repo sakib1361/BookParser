@@ -38,34 +38,32 @@ namespace ParserEngine.Engine
             if (string.IsNullOrWhiteSpace(url))
                 return null;
             var allParts = new List<string>();
-            using (var document = await Context.OpenAsync(url))
+            using var document = await Context.OpenAsync(url);
+            var data = GetElement(document, "breadcrumb", ParserType.Class);
+            var all = data.GetElementsByTagName("span");
+            foreach (var node in all)
             {
-                var data = GetElement(document, "breadcrumb", ParserType.Class);
-                var all = data.GetElementsByTagName("span");
-                foreach (var node in all)
+                if (node.HasAttribute("property") && node.GetAttribute("property") == "name")
                 {
-                    if (node.HasAttribute("property") && node.GetAttribute("property") == "name")
-                    {
-                        allParts.Add(node.InnerHtml.Trim());
-                    }
-
+                    allParts.Add(node.InnerHtml.Trim());
                 }
 
-                var name = string.Empty;
-                var element = GetElement(document, "page-header-title", ParserType.Class);
-                if (element != null)
-                    name = element.InnerHtml.Trim();
-
-                var author = allParts.LastOrDefault();
-                var urlData = GetUrl(document, "entry-title-link", ParserType.Class);
-
-                return new Book()
-                {
-                    Url = urlData,
-                    Author = author,
-                    Bookname = name
-                };
             }
+
+            var name = string.Empty;
+            var element = GetElement(document, "page-header-title", ParserType.Class);
+            if (element != null)
+                name = element.InnerHtml.Trim();
+
+            var author = allParts.LastOrDefault();
+            var urlData = GetUrl(document, "entry-title-link", ParserType.Class);
+
+            return new Book()
+            {
+                Url = urlData,
+                Author = author,
+                Bookname = name
+            };
         }
 
         private async Task<Chapter> GetChapter(Book book, string url)

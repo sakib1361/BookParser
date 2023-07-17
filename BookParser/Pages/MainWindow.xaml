@@ -8,7 +8,7 @@
         d:DataContext="local:MainViewModel"
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         WindowStartupLocation="CenterScreen"
-        Title="MainWindow"
+        Title="Book Parser 1.0.1"
         Height="650"
         Width="600">
     <Window.Resources>
