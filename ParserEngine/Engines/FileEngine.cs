@@ -1,26 +1,15 @@
 ﻿using DesktopParser.Engine;
 using ParserEngine.Models;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ParserEngine.Engine
 {
     public class FileEngine
     {
-        private readonly ImageEngine ImageEngine;
-
-        public FileEngine()
+        public static async Task CreateBook(Book book, string exportPath)
         {
-            ImageEngine = new ImageEngine();
-        }
-        public async Task CreateBook(Book book, string exportPath)
-        {
-            var uuid = Guid.NewGuid().ToString();
+            var uuid = "PDF_" + Guid.NewGuid().ToString();
             var opfPath = Path.Combine(book.FilePath, "content.opf");
             var titlePath = Path.Combine(book.FilePath, "titlepage.xhtml");
             var tocPath = Path.Combine(book.FilePath, "toc.ncx");
@@ -46,25 +35,26 @@ namespace ParserEngine.Engine
             LogEngine.Data("Epub Created");
         }
 
-        private async Task Export(string source, string file)
+        private static async Task Export(string source, string file)
         {
             if (File.Exists(file)) File.Delete(file);
             await Task.Run(() => ZipFile.CreateFromDirectory(source, file));
             Directory.Delete(source, true);
         }
 
-        private async Task CreateOpf(string filePath, string customAuthor,string customTitle, string customUUID,IEnumerable<string> files)
+        private static async Task CreateOpf(string filePath, string customAuthor,string customTitle, string customUUID,IEnumerable<string> files)
         {
             var contentBuilder = new StringBuilder();
             var refBuilder = new StringBuilder();
             int id = 10;
             foreach (var item in files)
             {
+                string sid = "id_"+ id;
                 var manifest = FileConstants.OpfManifest
                                             .Replace(FileConstants.ContentReplace, item)
-                                            .Replace(FileConstants.IDReplace, id.ToString());
+                                            .Replace(FileConstants.IDReplace, sid);
                 var opfRef = FileConstants.OpfRef
-                                       .Replace(FileConstants.IDReplace, id.ToString());
+                                       .Replace(FileConstants.IDReplace, sid);
                 contentBuilder.AppendLine(manifest);
                 refBuilder.AppendLine(opfRef);
                 id++;
@@ -79,13 +69,13 @@ namespace ParserEngine.Engine
             await WriteTextAsync(filePath, opf);         
         }
 
-        private async Task CreateTitle(string filePath)
+        private static async Task CreateTitle(string filePath)
         {
             var title = FileConstants.TitleContent;
             await WriteTextAsync(filePath,title);
         }
 
-        private async Task CreateTOC(string filePath, string uuid)
+        private static async Task CreateTOC(string filePath, string uuid)
         {
             var toc = FileConstants.TOCContent
                                    .Replace(FileConstants.UUIDReplace, uuid);

@@ -1,12 +1,7 @@
 ﻿using Jdenticon;
 using ParserEngine.Models;
-using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Drawing.Text;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DesktopParser.Engine
 {
@@ -14,25 +9,24 @@ namespace DesktopParser.Engine
     {
         private const int height = 640;
         private const int width = 400;
-        public async Task CreateImage(Book book, string filePath, string fontName = "")
+        public static async Task CreateImage(Book book, string filePath)
         {
-            
             if (File.Exists(filePath)) File.Delete(filePath);
-            if (string.IsNullOrWhiteSpace(fontName)) fontName = FontFamily.GenericSansSerif.Name;
-            await Task.Run(() =>
+            if (string.IsNullOrWhiteSpace(book.EncodedImage))
             {
-                using (var img = ConvertTextToImage(book.Author, book.Bookname, fontName))
-                {
-                    var encoderParameters = new EncoderParameters(1);
-                    encoderParameters.Param[0] = new EncoderParameter(Encoder.Quality, 100L);
-                    img.Save(filePath, GetEncoder(ImageFormat.Jpeg), encoderParameters);
-                    var bData = File.ReadAllBytes(filePath);
-                    book.EncodedImage = "data:image/jpeg;base64, " + Convert.ToBase64String(bData);
-                }
-            });
+                string fontName = FontFamily.GenericSansSerif.Name;
+                using var img = ConvertTextToImage(book.Author, book.Bookname, fontName);
+                var encoderParameters = new EncoderParameters(1);
+                encoderParameters.Param[0] = new EncoderParameter(Encoder.Quality, 100L);
+                img.Save(filePath, GetEncoder(ImageFormat.Jpeg), encoderParameters);
+            }
+            else
+            {
+                await File.WriteAllBytesAsync(filePath, Convert.FromBase64String(book.EncodedImage));
+            }
         }
 
-        private ImageCodecInfo GetEncoder(ImageFormat format)
+        private static ImageCodecInfo GetEncoder(ImageFormat format)
         {
             var codecs = ImageCodecInfo.GetImageDecoders();
 
@@ -47,7 +41,7 @@ namespace DesktopParser.Engine
             return null;
         }
 
-        private Bitmap ConvertTextToImage(string author, string bookName, string fontname)
+        private static Bitmap ConvertTextToImage(string author, string bookName, string fontname)
         {
             var fontFamily = FontFamily.Families.FirstOrDefault(x => x.Name == fontname);
            
@@ -88,6 +82,67 @@ namespace DesktopParser.Engine
                 graphics.Dispose();
             }
             return bmp;
+        }
+
+        internal async Task<string> Parse(string name, string author, string imgElement)
+        {
+            if (!string.IsNullOrEmpty(imgElement))
+            {
+                using var client = new HttpClient();
+                var resp = await client.GetAsync(imgElement);
+                if (resp.IsSuccessStatusCode)
+                {
+                    var stream = await resp.Content.ReadAsByteArrayAsync();
+                    return Convert.ToBase64String(stream);
+                }
+            }
+
+            var iconStyle = new IdenticonStyle
+            {
+                Padding = 0.10f,
+                ColorSaturation = 0.4f,
+                GrayscaleSaturation = 1.0f,
+                ColorLightness = Jdenticon.Range.Create(0.7f, 0.9f),
+                GrayscaleLightness = Jdenticon.Range.Create(0.3f, 0.9f)
+            };
+            var icon = Identicon.FromValue(name, height);
+            icon.Style = iconStyle;
+            var rawImage = new Bitmap(width, height);
+            using var graphics = Graphics.FromImage(rawImage);
+            WriteOnBitmap(graphics, rawImage, name, author);
+            var encoderParameters = new EncoderParameters(1);
+            encoderParameters.Param[0] = new EncoderParameter(Encoder.Quality, 100L);
+            var coverImg = Path.Combine(Path.GetTempPath(), "cover.jpeg");
+            if (File.Exists(coverImg))
+            {
+                File.Delete(coverImg);
+            }
+            rawImage.Save(coverImg, GetEncoder(ImageFormat.Jpeg), encoderParameters);
+            var bData = File.ReadAllBytes(coverImg);
+            return Convert.ToBase64String(bData);
+        }
+
+        private void WriteOnBitmap(Graphics graphics, Bitmap bmp, string bookName, string author)
+        {
+            var fontFamily = FontFamily.GenericSansSerif;
+            var nameFont = new Font(fontFamily, 20);
+            var authorFont = new Font(fontFamily, 12);
+            var sf = new StringFormat
+            {
+                Alignment = StringAlignment.Near
+            };
+
+            SizeF s = graphics.MeasureString(bookName, nameFont);
+            float fontScale = s.Width / bmp.Width;
+
+            using (var font = new Font(fontFamily.Name, 20 / fontScale, GraphicsUnit.Point))
+            {
+                graphics.DrawString(bookName, font, Brushes.Black, 0, 30, sf);
+            }
+            graphics.DrawString(author, authorFont, Brushes.Black, 50, 540, sf);
+            graphics.Flush();
+            nameFont.Dispose();
+            authorFont.Dispose();
         }
     }
 }
