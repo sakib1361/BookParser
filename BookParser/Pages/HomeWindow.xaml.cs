@@ -88,6 +88,10 @@ namespace BookParser.Pages
             _currentBook.Chapters.Clear();
             _currentBook.Author = AuthorBox.Text;
             _currentBook.Bookname = NameBox.Text;
+            if (ResetImage.IsChecked.Value)
+            {
+                _currentBook.EncodedImage = null;
+            }
             PrBox.Visibility = Visibility.Visible;
             using var engine = new BanglaLibraryEngine();
             var res = await engine.Parse(_currentBook);

@@ -30,8 +30,9 @@ namespace ParserEngine.Engines
             while (!string.IsNullOrWhiteSpace(chapter.NextUrl))
             {
                 chapter = await GetChapter(book, chapter.NextUrl);
-                if (chapter == null || book.Chapters.Any(x=>x.CurrentUrl == chapter.NextUrl)) break;
-                else book.Chapters.Add(chapter);
+                if (chapter == null) break;
+                book.Chapters.Add(chapter);
+                if(book.Chapters.Any(x => x.CurrentUrl == chapter.NextUrl)) break;
             }
             return true;
         }
@@ -111,6 +112,8 @@ namespace ParserEngine.Engines
                 if (arbitaryData != null)
                     content =  content.Replace(arbitaryData, "");
             }
+
+            content = content.Replace("<br />", "<br/>");
 
 
             var chapterName = string.Format("index_split_{0:D3}.xhtml", book.Chapters.Count + 1);

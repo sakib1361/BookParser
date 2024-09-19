@@ -39,11 +39,8 @@
                          x:Name="PrBox"
                          IsIndeterminate="True" />
             <Grid>
-                <Image x:Name="ImageBox"
-                       HorizontalAlignment="Left"
-                       Height="150"
-                       Width="100" />
-                <StackPanel Margin="110,0,0,0" Orientation="Vertical">
+               
+                <StackPanel Margin="0,0,110,0" Orientation="Vertical">
                     <TextBox x:Name="NameBox"
                              Margin="5"
                              md:HintAssist.Hint="Name"
@@ -52,7 +49,17 @@
                              Margin="5"
                              md:HintAssist.Hint="Author"
                              md:HintAssist.IsFloating="True" />
+                    <CheckBox x:Name="ResetImage" 
+                              Content="Reset Image"
+                              Margin="4"
+                              IsChecked="False"
+                              VerticalAlignment="Center"
+                              VerticalContentAlignment="Center"/>
                 </StackPanel>
+                <Image x:Name="ImageBox"
+                       HorizontalAlignment="Right"
+                       Height="150"
+                       Width="100" />
             </Grid>
             <Button x:Name="DownButton" 
                     Content="Download"

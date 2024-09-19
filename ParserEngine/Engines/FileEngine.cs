@@ -9,12 +9,12 @@ namespace ParserEngine.Engine
     {
         public static async Task CreateBook(Book book, string exportPath)
         {
-            var uuid = "PDF_" + Guid.NewGuid().ToString();
+            var uuid = Guid.NewGuid().ToString();
             var opfPath = Path.Combine(book.FilePath, "content.opf");
             var titlePath = Path.Combine(book.FilePath, "titlepage.xhtml");
             var tocPath = Path.Combine(book.FilePath, "toc.ncx");
             var allFiles = Directory.GetFiles(book.FilePath);
-            var xhmlFiles = allFiles.Select(x => Path.GetFileName(x))
+            var xhmlFiles = allFiles.Select(Path.GetFileName)
                                     .Where(m => m.StartsWith("index"));
 
             var mimeFile = Path.Combine(book.FilePath, "mimetype");
@@ -25,7 +25,7 @@ namespace ParserEngine.Engine
 
 
             await CreateOpf(opfPath, book.Author, book.Bookname, uuid, xhmlFiles);
-            await CreateTOC(tocPath, uuid);
+            await CreateTOC(book, tocPath, uuid);
             await CreateTitle(titlePath);
             await WriteTextAsync(mimeFile, "application/epub+zip");
             await WriteTextAsync(containerFile, FileConstants.Container);
@@ -75,10 +75,22 @@ namespace ParserEngine.Engine
             await WriteTextAsync(filePath,title);
         }
 
-        private static async Task CreateTOC(string filePath, string uuid)
+        private static async Task CreateTOC(Book book, string filePath, string uuid)
         {
             var toc = FileConstants.TOCContent
                                    .Replace(FileConstants.UUIDReplace, uuid);
+            var navBuilder = new StringBuilder();
+            foreach (Chapter chapter in book.Chapters)
+            {
+                var id = "A" + Guid.NewGuid().ToString();
+                var navPoint = FileConstants.NavMap.Replace(FileConstants.UUIDReplace, id);
+                navPoint = navPoint.Replace(FileConstants.TitleReplace, chapter.Name)
+                                   .Replace(FileConstants.SrcReplace, Path.GetFileName(chapter.FileName));
+                navBuilder.AppendLine(navPoint);
+            }
+            var navPoints = navBuilder.ToString();
+            toc = toc.Replace(FileConstants.ContentReplace, navPoints)
+                     .Replace(FileConstants.TitleReplace, book.Bookname);
             await WriteTextAsync(filePath, toc);
         }
 
