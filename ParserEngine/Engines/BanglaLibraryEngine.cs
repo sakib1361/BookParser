@@ -1,4 +1,5 @@
 ﻿using AngleSharp;
+using AngleSharp.Dom;
 using DesktopParser.Engine;
 using ParserEngine.Engine;
 using ParserEngine.Models;
@@ -15,21 +16,24 @@ namespace ParserEngine.Engines
         private const string Header = "ld-focus-content";
         private const string Content = "entry-content";
         private const string Next = "ld-button-transparent";
-        private const string Arbitary = "scriptlesssocialsharing mbfp-btn";
+        private const string Arbitary = "scriptlesssocialsharing mbfp-btn simplefavorite-button ftwp-float-right ftwp-fixed-to-post";
 
-        public async Task<bool> Parse(Book book)
+        public async Task<bool> Parse(Book book, IUrlParser parser)
         {
             var temp = Path.Combine(Path.GetTempPath(), book.Bookname);
             if (Directory.Exists(temp)) Directory.Delete(temp, true);
             Directory.CreateDirectory(temp);
 
             book.FilePath = temp;
-            var chapter = await GetChapter(book, book.Url);
+            var img = new ImageEngine();
+            book.EncodedImage = await img.Parse(book.Bookname, book.Author, book.ImagePath);
+
+            var chapter = await GetChapter(book, book.Url, parser);
             if (chapter == null) return false;
             book.Chapters.Add(chapter);
             while (!string.IsNullOrWhiteSpace(chapter.NextUrl))
             {
-                chapter = await GetChapter(book, chapter.NextUrl);
+                chapter = await GetChapter(book, chapter.NextUrl, parser);
                 if (chapter == null) break;
                 book.Chapters.Add(chapter);
                 if(book.Chapters.Any(x => x.CurrentUrl == chapter.NextUrl)) break;
@@ -37,13 +41,17 @@ namespace ParserEngine.Engines
             return true;
         }
 
-        public async Task<Book> GetBookInfo(string url)
+        public Book GetBookInfo(IDocument document)
         {
-            if (string.IsNullOrWhiteSpace(url))
-                return null;
+            if (document == null) return null;
             var allParts = new List<string>();
-            using var document = await Context.OpenAsync(url);
+            //using var document = await parser.OpenAsync(url);
             var data = GetElement(document, "breadcrumb", ParserType.Class, true);
+            if (data == null) return null;
+
+            var ld = GetElement(document, "learndash", ParserType.Class, true);
+            if (ld == null) return null;
+
             var all = data.GetElementsByTagName("span");
             foreach (var node in all)
             {
@@ -76,21 +84,23 @@ namespace ParserEngine.Engines
             var urlData = GetUrl(document, "ld-item-name", ParserType.Class);
 
             var imgElement = GetImage(document, "entry-image", ParserType.Class);
-            var img = new ImageEngine();
-            var imgData = await img.Parse(name, author, imgElement);
+            //var img = new ImageEngine();
+            //var imgData = await img.Parse(name, author, imgElement);
             return new Book()
             {
                 Url = urlData,
                 Author = author,
                 Bookname = name,
-                EncodedImage = imgData,
+                ImagePath = imgElement,
+                //EncodedImage = imgData,
             };
         }
+        //ftwp-in-post ftwp-float-right
+        //
 
-
-        private async Task<Chapter> GetChapter(Book book, string url)
+        private async Task<Chapter> GetChapter(Book book, string url, IUrlParser parser)
         {
-            using var document = await Context.OpenAsync(url);
+            using var document = await parser.OpenAsync(url);
             if (document == null)
             {
                 LogEngine.Error("Failed to Parse Information");

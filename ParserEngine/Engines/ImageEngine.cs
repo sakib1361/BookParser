@@ -9,6 +9,8 @@ namespace DesktopParser.Engine
     {
         private const int height = 640;
         private const int width = 400;
+
+
         public static async Task CreateImage(Book book, string filePath)
         {
             if (File.Exists(filePath)) File.Delete(filePath);
@@ -26,6 +28,16 @@ namespace DesktopParser.Engine
             }
         }
 
+        public static void WriteImageTest(string name, string author, string filePath)
+        {
+            if (File.Exists(filePath)) File.Delete(filePath);
+            string fontName = FontFamily.GenericSansSerif.Name;
+            using var img = ConvertTextToImage(author, name, fontName);
+            var encoderParameters = new EncoderParameters(1);
+            encoderParameters.Param[0] = new EncoderParameter(Encoder.Quality, 100L);
+            img.Save(filePath, GetEncoder(ImageFormat.Jpeg), encoderParameters);
+        }
+
         private static ImageCodecInfo GetEncoder(ImageFormat format)
         {
             var codecs = ImageCodecInfo.GetImageDecoders();
@@ -41,7 +53,7 @@ namespace DesktopParser.Engine
             return null;
         }
 
-        private static Bitmap ConvertTextToImage(string author, string bookName, string fontname)
+        public static Bitmap ConvertTextToImage(string author, string bookName, string fontname)
         {
             var fontFamily = FontFamily.Families.FirstOrDefault(x => x.Name == fontname);
            
@@ -95,29 +107,20 @@ namespace DesktopParser.Engine
                     var stream = await resp.Content.ReadAsByteArrayAsync();
                     return Convert.ToBase64String(stream);
                 }
+                else
+                {
+                    imgElement+=".webp";
+                    resp = await client.GetAsync(imgElement);
+                    if (resp.IsSuccessStatusCode)
+                    {
+                        var stream = await resp.Content.ReadAsByteArrayAsync();
+                        return Convert.ToBase64String(stream);
+                    }
+                }
             }
 
-            var iconStyle = new IdenticonStyle
-            {
-                Padding = 0.10f,
-                ColorSaturation = 0.4f,
-                GrayscaleSaturation = 1.0f,
-                ColorLightness = Jdenticon.Range.Create(0.7f, 0.9f),
-                GrayscaleLightness = Jdenticon.Range.Create(0.3f, 0.9f)
-            };
-            var icon = Identicon.FromValue(name, height);
-            icon.Style = iconStyle;
-            var rawImage = new Bitmap(width, height);
-            using var graphics = Graphics.FromImage(rawImage);
-            WriteOnBitmap(graphics, rawImage, name, author);
-            var encoderParameters = new EncoderParameters(1);
-            encoderParameters.Param[0] = new EncoderParameter(Encoder.Quality, 100L);
-            var coverImg = Path.Combine(Path.GetTempPath(), "cover.jpeg");
-            if (File.Exists(coverImg))
-            {
-                File.Delete(coverImg);
-            }
-            rawImage.Save(coverImg, GetEncoder(ImageFormat.Jpeg), encoderParameters);
+            var coverImg = Path.Combine("D:", "cover.jpeg");
+            WriteImageTest(name, author, coverImg);
             var bData = File.ReadAllBytes(coverImg);
             return Convert.ToBase64String(bData);
         }

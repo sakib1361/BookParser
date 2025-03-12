@@ -1,0 +1,21 @@
+﻿body {
+    font-family: sans-serif
+}
+
+.title {
+    text-align: center;
+    font-size: 1.5em;
+}
+
+.qjuz {
+    text-align: left;
+    font-size: 1.25em;
+    margin-top: 1.125em;
+    margin-bottom: 1.75em;
+    direction: rtl;
+}
+
+.bn-translation {
+    text-align: right;
+    font-size: 1em;
+}

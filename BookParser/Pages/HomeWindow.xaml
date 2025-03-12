@@ -6,77 +6,36 @@
         xmlns:local="clr-namespace:BookParser.Pages"
         mc:Ignorable="d"
         FontSize="16"
+        xmlns:ic="http://materialdesigninxaml.net/winfx/xaml/themes"
         WindowStartupLocation="CenterScreen"
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         Title="Book Parser"
+        WindowState="Maximized"
+        xmlns:cefSharp="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
         Height="550"
         Width="600">
-    <Grid Margin="10,15">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="200" />
-        </Grid.RowDefinitions>
-        <StackPanel>
-            <Grid>
-                <TextBox  md:HintAssist.IsFloating="True"
-                          Margin="5,5,100,5"
-                          x:Name="UrlBox"
-                          md:TextFieldAssist.HasClearButton="True"
-                          md:HintAssist.Hint="Url" />
-                <Button Content="Search" 
-                        Padding="5"
-                        Width="60"
-                        Click="Search_Click"
-                        Background="Transparent"
-                        BorderBrush="Transparent"
-                        Foreground="Black"
-                        HorizontalAlignment="Right"/>
-            </Grid>
-            <ProgressBar Style="{StaticResource MaterialDesignLinearProgressBar}"
-                         Visibility="Hidden"
-                         Margin="5,10"
-                         HorizontalAlignment="Stretch"
-                         x:Name="PrBox"
-                         IsIndeterminate="True" />
-            <Grid>
-               
-                <StackPanel Margin="0,0,110,0" Orientation="Vertical">
-                    <TextBox x:Name="NameBox"
-                             Margin="5"
-                             md:HintAssist.Hint="Name"
-                             md:HintAssist.IsFloating="True" />
-                    <TextBox x:Name="AuthorBox"
-                             Margin="5"
-                             md:HintAssist.Hint="Author"
-                             md:HintAssist.IsFloating="True" />
-                    <CheckBox x:Name="ResetImage" 
-                              Content="Reset Image"
-                              Margin="4"
-                              IsChecked="False"
-                              VerticalAlignment="Center"
-                              VerticalContentAlignment="Center"/>
-                </StackPanel>
-                <Image x:Name="ImageBox"
-                       HorizontalAlignment="Right"
-                       Height="150"
-                       Width="100" />
-            </Grid>
-            <Button x:Name="DownButton" 
-                    Content="Download"
-                    Click="DownButton_Click"
-                    HorizontalAlignment="Center"
-                    Background="DarkCyan"/>
-        </StackPanel>
-        <ListView x:Name="LogBox"
-                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                  Grid.Row="1">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding}"
-                               TextWrapping="Wrap" />
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-        
+    <Grid>
+        <cefSharp:ChromiumWebBrowser x:Name="Browser"
+                                     FrameLoadEnd="Browser_FrameLoadEnd"
+                                     Title="Ebook"/>
+        <Button HorizontalAlignment="Right"
+                Content="{ic:PackIcon Kind=Download}" 
+                VerticalAlignment="Top"
+                Margin="20"
+                Opacity="0.7"
+                Click="DButton_Click"
+                x:Name="DButton"
+                Style="{StaticResource MaterialDesignFloatingActionMiniButton}"/>
+        <Grid x:Name="TopGrid"
+              Visibility="Collapsed">
+            <Rectangle Fill="Black"
+                       Opacity="0.9" />
+            <TextBlock x:Name="DownloadOutput" Text="Opening................"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       MaxWidth="500"
+                       TextWrapping="Wrap"
+                       Foreground="White"/>
+        </Grid>
     </Grid>
 </Window>

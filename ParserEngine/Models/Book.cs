@@ -17,6 +17,7 @@ namespace ParserEngine.Models
         //public ParseInfo ArbitaryInfo { get; set; }
         public string EncodedImage { get; set; }
         public string DownloadLink { get; set; }
+        public string ImagePath { get; internal set; }
 
         public Book()
         {

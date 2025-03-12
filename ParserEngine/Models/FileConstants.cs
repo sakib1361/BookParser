@@ -18,22 +18,22 @@ namespace ParserEngine.Models
         internal const string OpfManifest = @"<item href=""{CustomContent}"" id=""{Id}"" media-type=""application/xhtml+xml""/>";
         internal const string OpfRef = @"<itemref idref=""{Id}""/>";
 
-        internal const string CustomContent = @"
+        internal const string CustomContent = $@"
 <?xml version=""1.0"" encoding=""utf-8""?>
 <html xmlns = ""http://www.w3.org/1999/xhtml"" xmlns:epub=""http://www.idpf.org/2007/ops"">
  <head>
   <title>
-  {CustomTitle}
+  {TitleReplace}
   </title>
  </head>
  <body>
   <h1>
-  {CustomTitle}
+  {TitleReplace}
   </h1>
   <br/>
   <br/>
   <div>
-  {CustomContent}
+  {ContentReplace}
   </div>
  </body>
 </html>";

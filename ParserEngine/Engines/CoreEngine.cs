@@ -5,15 +5,8 @@ using ParserEngine.Models;
 
 namespace ParserEngine.Engine
 {
-    public abstract class CoreEngine : IDisposable
+    public abstract class CoreEngine
     {
-        protected IBrowsingContext Context;
-        public CoreEngine()
-        {
-            var config = Configuration.Default.WithDefaultLoader();
-            Context = BrowsingContext.New(config);
-        }
-        
 
         protected string GetUrl(IDocument document, string parser, ParserType parserType, bool pos = true)
         {
@@ -54,15 +47,6 @@ namespace ParserEngine.Engine
                     else return rDatas.LastOrDefault();
             }
             return null;
-        }
-
-        public void Dispose()
-        {
-            try
-            {
-                Context = null;
-            }
-            catch { }
         }
     }
 }
